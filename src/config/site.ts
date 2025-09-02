@@ -1,10 +1,13 @@
 export interface PricingPlan {
   name: string;
   price: number;
+  monthlyPrice: number;
+  yearlyPrice: number;
   originalPrice?: number;
   currency: string;
   description: string;
   popular?: boolean;
+  free?: boolean;
   features: string[];
   paymentMethods: string[];
   buttonText: string;
@@ -16,9 +19,10 @@ export interface SiteConfig {
   description: string;
   url: string;
   pricing: {
+    free: PricingPlan;
     starter: PricingPlan;
-    standard: PricingPlan;
-    premium: PricingPlan;
+    pro: PricingPlan;
+    enterprise: PricingPlan;
   };
   social: {
     twitter?: string;
@@ -45,67 +49,81 @@ export const siteConfig: SiteConfig = {
   url: process.env.BETTER_AUTH_URL || "http://localhost:3000",
 
   pricing: {
-    starter: {
-      name: "入门版",
-      price: 199,
-      originalPrice: 299,
+    free: {
+      name: "Free",
+      price: 0,
+      monthlyPrice: 0,
+      yearlyPrice: 0,
       currency: "USD",
-      description: "开始您的第一个 SaaS 创业项目。",
+      description: "Perfect for trying out our AI tools",
+      free: true,
       features: [
-        "NextJS 模板",
-        "SEO 友好结构",
-        "博客 & 内容管理系统",
-        "Stripe 支付",
-        "Supabase 数据存储",
-        "Google OAuth 和一键登录",
-        "国际化支持",
+        "10 AI generations per month",
+        "Basic image generation",
+        "Standard quality output",
+        "Community support",
       ],
-      paymentMethods: ["支付宝", "微信", "支付宝"],
-      buttonText: "获取 ShipAny ⚡",
-      note: "一次付费，无限项目！",
+      paymentMethods: [],
+      buttonText: "Sign Up",
+      note: "No credit card required",
     },
 
-    standard: {
-      name: "标准版",
-      price: 249,
-      originalPrice: 349,
+    starter: {
+      name: "Starter",
+      price: 9.99,
+      monthlyPrice: 9.99,
+      yearlyPrice: 99.9,
       currency: "USD",
-      description: "快速启动您的 SaaS 创业项目。",
+      description: "Great for individuals and small projects",
+      features: [
+        "100 AI generations per month",
+        "High-quality image generation",
+        "Multiple AI models",
+        "Priority support",
+        "Commercial usage rights",
+      ],
+      paymentMethods: ["Credit Card", "PayPal"],
+      buttonText: "Get Started",
+      note: "Cancel anytime",
+    },
+
+    pro: {
+      name: "Pro",
+      price: 19.99,
+      monthlyPrice: 19.99,
+      yearlyPrice: 199.9,
+      currency: "USD",
+      description: "Perfect for professionals and teams",
       popular: true,
       features: [
-        "包含入门版所有功能，另加",
-        "Vercel 或 Cloudflare 部署",
-        "隐私和条款生成",
-        "Google Analytics 集成",
-        "Google Search Console 集成",
-        "Discord 社区",
-        "首次发布技术支持",
-        "终身更新",
+        "500 AI generations per month",
+        "Premium AI models access",
+        "Advanced customization",
+        "Priority processing",
+        "Advanced analytics",
       ],
-      paymentMethods: ["支付宝", "微信", "支付宝"],
-      buttonText: "获取 ShipAny ⚡",
-      note: "一次付费，无限项目！",
+      paymentMethods: ["Credit Card", "PayPal"],
+      buttonText: "Start Free Trial",
+      note: "14-day free trial",
     },
 
-    premium: {
-      name: "高级版",
-      price: 299,
-      originalPrice: 399,
+    enterprise: {
+      name: "Enterprise",
+      price: 99.99,
+      monthlyPrice: 99.99,
+      yearlyPrice: 999.9,
       currency: "USD",
-      description: "构建任何 AI SaaS 创业项目。",
+      description: "For large teams and organizations",
       features: [
-        "包含标准版所有功能，另加",
-        "更多组件选择",
-        "AI 业务功能 & SDK",
-        "用户控制台",
-        "后台管理系统",
-        "积分管理",
-        "API 密钥管理",
-        "优先技术支持",
+        "Unlimited AI generations",
+        "Dedicated support manager",
+        "Custom integrations",
+        "Advanced security features",
+        "SLA guarantee",
       ],
-      paymentMethods: ["支付宝", "微信", "支付宝", "自定义促销码"],
-      buttonText: "获取 ShipAny ⚡",
-      note: "一次付费，无限项目！",
+      paymentMethods: ["Credit Card", "Invoice", "Wire Transfer"],
+      buttonText: "Contact Sales",
+      note: "Custom enterprise pricing available",
     },
   },
 
