@@ -29,7 +29,10 @@ interface MobileMenuWrapperProps {
   }>;
 }
 
-export const MobileMenuWrapper = ({ user, navigationItems }: MobileMenuWrapperProps) => {
+export const MobileMenuWrapper = ({
+  user,
+  navigationItems,
+}: MobileMenuWrapperProps) => {
   return (
     <Sheet>
       <SheetTrigger className="relative h-8 w-8 rounded-md flex items-center justify-center hover:bg-gray-100 transition-colors">

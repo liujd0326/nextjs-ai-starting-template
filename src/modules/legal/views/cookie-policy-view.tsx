@@ -520,7 +520,7 @@ export const CookiePolicyView = () => {
                   </h3>
                   <p className="text-gray-700 text-base leading-relaxed mb-5">
                     For mobile browsers, cookie management options are typically
-                    found in the browser's privacy or security settings.
+                    found in the browser&apos;s privacy or security settings.
                   </p>
 
                   <h3 className="text-lg font-semibold text-gray-800 mb-3">
@@ -566,10 +566,10 @@ export const CookiePolicyView = () => {
                     7.4 Do Not Track
                   </h3>
                   <p className="text-gray-700 text-base leading-relaxed">
-                    Some browsers offer "Do Not Track" signals. While we respect
-                    user privacy preferences, there is no universal standard for
-                    interpreting these signals, so we may not automatically
-                    respond to them.
+                    Some browsers offer &quot;Do Not Track&quot; signals. While
+                    we respect user privacy preferences, there is no universal
+                    standard for interpreting these signals, so we may not
+                    automatically respond to them.
                   </p>
                 </section>
 
@@ -593,7 +593,8 @@ export const CookiePolicyView = () => {
                   </p>
                   <ul className="list-disc list-inside space-y-2 mb-6 text-gray-700 text-base leading-relaxed">
                     <li>
-                      Update the "Last updated" date at the top of this policy
+                      Update the &quot;Last updated&quot; date at the top of
+                      this policy
                     </li>
                     <li>Notify you through our Service or via email</li>
                     <li>Request renewed consent if required by law</li>

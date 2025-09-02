@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { SignInDialog } from "@/components/auth/sign-in-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Sheet,
@@ -15,10 +16,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { authClient } from "@/lib/auth-client";
 import { siteConfig } from "@/config/site";
-
-import { SignInDialog } from "@/components/auth/sign-in-dialog";
+import { authClient } from "@/lib/auth-client";
 
 interface MobileMenuProps {
   user?: {

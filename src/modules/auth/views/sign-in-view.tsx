@@ -9,8 +9,8 @@ import { FcGoogle } from "react-icons/fc";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { authClient } from "@/lib/auth-client";
 import { siteConfig } from "@/config/site";
+import { authClient } from "@/lib/auth-client";
 
 const SignInView = () => {
   const [isLoading, setIsLoading] = useState(false);

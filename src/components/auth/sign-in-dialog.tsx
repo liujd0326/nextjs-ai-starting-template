@@ -100,8 +100,8 @@ const SignInDialog = ({
             Terms of Service
           </Link>{" "}
           and{" "}
-          <Link 
-            href="/privacy-policy" 
+          <Link
+            href="/privacy-policy"
             className="text-primary hover:underline"
             onClick={() => setIsOpen(false)}
           >

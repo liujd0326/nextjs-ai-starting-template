@@ -1,11 +1,11 @@
 "use client";
 
 import { LogOut, User } from "lucide-react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-import { AvatarWithLoading } from "@/components/avatar-with-loading";
 import { SignInDialog } from "@/components/auth/sign-in-dialog";
+import { AvatarWithLoading } from "@/components/avatar-with-loading";
 import { authClient } from "@/lib/auth-client";
 
 interface UserType {
@@ -23,7 +23,10 @@ interface MobileAuthSectionProps {
   }>;
 }
 
-export const MobileAuthSection = ({ user, navigationItems }: MobileAuthSectionProps) => {
+export const MobileAuthSection = ({
+  user,
+  navigationItems,
+}: MobileAuthSectionProps) => {
   const router = useRouter();
 
   const handleSignOut = async () => {
@@ -52,7 +55,6 @@ export const MobileAuthSection = ({ user, navigationItems }: MobileAuthSectionPr
     }
     return email[0].toUpperCase();
   };
-
 
   return (
     <>
