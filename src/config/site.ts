@@ -25,6 +25,13 @@ export interface SiteConfig {
     github?: string;
     discord?: string;
   };
+  contact: {
+    email: string;
+    supportResponseTime: string;
+  };
+  legal: {
+    lastUpdated: string;
+  };
   seo: {
     keywords: string[];
     author: string;
@@ -106,6 +113,15 @@ export const siteConfig: SiteConfig = {
     twitter: "@yoursite",
     github: "https://github.com/yoursite",
     discord: "https://discord.gg/yoursite",
+  },
+
+  contact: {
+    email: "demo@gmail.com",
+    supportResponseTime: "48 hours",
+  },
+
+  legal: {
+    lastUpdated: "September 2, 2025",
   },
 
   seo: {
