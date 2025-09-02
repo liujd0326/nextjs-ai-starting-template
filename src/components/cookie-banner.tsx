@@ -1,11 +1,11 @@
 "use client";
 
+import { Cookie, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { MotionDiv } from "@/components/motion-wrapper";
 import { Button } from "@/components/ui/button";
-import { Cookie, X } from "lucide-react";
 
 const CookieBanner = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -42,7 +42,7 @@ const CookieBanner = () => {
       <div className="relative backdrop-blur-md bg-white/80 border border-white/20 rounded-2xl shadow-2xl overflow-hidden">
         {/* Gradient border effect */}
         <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-transparent to-primary/20 rounded-2xl opacity-50"></div>
-        
+
         <div className="relative p-5">
           {/* Header with icon and close button */}
           <div className="flex items-center justify-between mb-3">
@@ -50,7 +50,9 @@ const CookieBanner = () => {
               <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                 <Cookie className="w-4 h-4 text-primary" />
               </div>
-              <h3 className="text-sm font-semibold text-foreground">Cookie Notice</h3>
+              <h3 className="text-sm font-semibold text-foreground">
+                Cookie Notice
+              </h3>
             </div>
             <Button
               variant="ghost"
@@ -65,8 +67,8 @@ const CookieBanner = () => {
 
           {/* Content */}
           <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-            We use cookies to enhance your browsing experience and analyze site traffic. 
-            By continuing, you consent to our use of cookies.
+            We use cookies to enhance your browsing experience and analyze site
+            traffic. By continuing, you consent to our use of cookies.
           </p>
 
           {/* Buttons */}
@@ -74,7 +76,7 @@ const CookieBanner = () => {
             <Button
               variant="outline"
               size="sm"
-              className="text-sm border-border/50 hover:border-border hover:bg-muted/50 transition-colors"
+              className="text-sm py-2 sm:py-2 px-4 border-border/50 hover:border-border hover:bg-muted/50 transition-colors"
               asChild
               onClick={handleClose}
             >
@@ -84,7 +86,7 @@ const CookieBanner = () => {
             </Button>
             <Button
               size="sm"
-              className="text-sm bg-primary hover:bg-primary/90 transition-colors flex-1 sm:flex-none"
+              className="text-sm py-2 sm:py-2 px-4 bg-primary hover:bg-primary/90 transition-colors flex-1 sm:flex-none"
               onClick={handleAccept}
             >
               Accept All
