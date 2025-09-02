@@ -14,8 +14,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { authClient } from "@/lib/auth-client";
 import { siteConfig } from "@/config/site";
+import { authClient } from "@/lib/auth-client";
 
 interface SignInDialogProps {
   trigger?: React.ReactNode;
@@ -47,7 +47,7 @@ const SignInDialog = ({
         provider: "google",
         callbackURL: "/",
       });
-      
+
       // 登录成功后关闭弹窗并执行回调
       setIsOpen(false);
       onSuccess?.();
@@ -92,11 +92,14 @@ const SignInDialog = ({
 
         <p className="text-center text-xs text-muted-foreground">
           By signing in, you agree to our{" "}
-          <Link href="/terms" className="text-primary hover:underline">
+          <Link
+            href="/terms-of-service"
+            className="text-primary hover:underline"
+          >
             Terms of Service
           </Link>{" "}
           and{" "}
-          <Link href="/privacy" className="text-primary hover:underline">
+          <Link href="/privacy-policy" className="text-primary hover:underline">
             Privacy Policy
           </Link>
         </p>
