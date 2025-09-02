@@ -3,7 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { auth } from "@/lib/auth";
+import { siteConfig } from "@/config/site";
 
+import { SignInDialog } from "@/components/auth/sign-in-dialog";
 import { MobileMenu } from "./mobile-menu";
 import { UserMenu } from "./user-menu";
 
@@ -27,13 +29,13 @@ export const MainHeader = async () => {
           <Link href="/" className="flex items-center space-x-3">
             <Image
               src="/logo.png"
-              alt={`${process.env.NEXT_PUBLIC_APP_NAME} Logo`}
+              alt={`${siteConfig.name} Logo`}
               width={32}
               height={32}
               className="w-8 h-8"
             />
             <span className="font-bold text-xl text-white">
-              {process.env.NEXT_PUBLIC_APP_NAME}
+              {siteConfig.name}
             </span>
           </Link>
         </div>
@@ -56,12 +58,13 @@ export const MainHeader = async () => {
             {session?.user ? (
               <UserMenu user={session.user} />
             ) : (
-              <Link
-                href="/sign-in"
-                className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
-              >
-                Sign In
-              </Link>
+              <SignInDialog
+                trigger={
+                  <button className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors">
+                    Sign In
+                  </button>
+                }
+              />
             )}
           </div>
 

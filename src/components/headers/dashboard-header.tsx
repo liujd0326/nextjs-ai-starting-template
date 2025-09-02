@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import Link from "next/link";
 
 export function DashboardHeader() {
   return (
@@ -9,13 +9,22 @@ export function DashboardHeader() {
             <span className="font-bold text-xl">AI Template</span>
           </Link>
           <nav className="hidden md:flex space-x-6">
-            <Link href="/dashboard" className="text-sm font-medium hover:text-primary">
+            <Link
+              href="/dashboard"
+              className="text-sm font-medium hover:text-primary"
+            >
               Dashboard
             </Link>
-            <Link href="/profile" className="text-sm font-medium hover:text-primary">
+            <Link
+              href="/profile"
+              className="text-sm font-medium hover:text-primary"
+            >
               Profile
             </Link>
-            <Link href="/settings" className="text-sm font-medium hover:text-primary">
+            <Link
+              href="/settings"
+              className="text-sm font-medium hover:text-primary"
+            >
               Settings
             </Link>
           </nav>
@@ -28,5 +37,5 @@ export function DashboardHeader() {
         </div>
       </div>
     </header>
-  )
+  );
 }
