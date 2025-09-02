@@ -3,6 +3,8 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Rubik } from "next/font/google";
 
+import { CookieBanner } from "@/components/cookie-banner";
+
 const rubik = Rubik({
   subsets: ["latin", "latin-ext"],
   display: "swap",
@@ -22,7 +24,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${rubik.className} antialiased`}>{children}</body>
+      <body className={`${rubik.className} antialiased`}>
+        {children}
+        <CookieBanner />
+      </body>
     </html>
   );
 }
