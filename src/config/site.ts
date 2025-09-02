@@ -39,7 +39,7 @@ export interface SiteConfig {
 }
 
 export const siteConfig: SiteConfig = {
-  name: "AI Template1",
+  name: "AI Template",
   description:
     "AI-powered SaaS platform for image generation and creative tools",
   url: process.env.BETTER_AUTH_URL || "http://localhost:3000",

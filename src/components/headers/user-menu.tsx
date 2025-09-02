@@ -4,7 +4,7 @@ import { LogOut, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { AvatarWithLoading } from "@/components/avatar-with-loading";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -56,15 +56,13 @@ const UserMenu = ({ user }: UserMenuProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="relative h-8 w-8 rounded-full">
-        <Avatar className="h-8 w-8">
-          <AvatarImage
-            src={user.image || undefined}
-            alt={user.name || user.email}
-          />
-          <AvatarFallback className="text-sm">
-            {getUserInitials(user.name, user.email)}
-          </AvatarFallback>
-        </Avatar>
+        <AvatarWithLoading
+          src={user.image}
+          alt={user.name || user.email}
+          fallback={getUserInitials(user.name, user.email)}
+          className="h-8 w-8"
+          fallbackClassName="text-sm"
+        />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <div className="flex items-center justify-start gap-2 p-2">

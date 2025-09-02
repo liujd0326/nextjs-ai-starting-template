@@ -2,18 +2,17 @@ import { headers } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
 
-import { auth } from "@/lib/auth";
-import { siteConfig } from "@/config/site";
-
 import { SignInDialog } from "@/components/auth/sign-in-dialog";
-import { MobileMenu } from "./mobile-menu";
+import { siteConfig } from "@/config/site";
+import { auth } from "@/lib/auth";
+
+import { MobileMenuWrapper } from "./mobile-menu-wrapper";
 import { UserMenu } from "./user-menu";
 
 const navigationItems = [
-  { href: "/features", label: "Features" },
-  { href: "/solutions", label: "Solutions" },
-  { href: "/for-teams", label: "For Teams" },
+  { href: "/create", label: "Create" },
   { href: "/pricing", label: "Pricing" },
+  { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -23,18 +22,17 @@ export const MainHeader = async () => {
   });
 
   return (
-    <header className="bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-800">
-      <div className="max-w-[1380px] mx-auto px-4 flex h-16 items-center justify-between">
+    <header className="bg-white border-b border-gray-200">
+      <div className="max-w-[1380px] mx-auto px-4 flex h-[74px] items-center justify-between">
         <div className="flex items-center">
           <Link href="/" className="flex items-center space-x-3">
             <Image
               src="/logo.png"
               alt={`${siteConfig.name} Logo`}
-              width={32}
-              height={32}
-              className="w-8 h-8"
+              width={38}
+              height={38}
             />
-            <span className="font-bold text-xl text-white">
+            <span className="font-semibold text-xl text-gray-900">
               {siteConfig.name}
             </span>
           </Link>
@@ -45,7 +43,7 @@ export const MainHeader = async () => {
             <Link
               key={item.href}
               href={item.href}
-              className="text-white text-sm font-medium hover:text-white/80 transition-colors"
+              className="text-black text-base font-semibold hover:bg-teal-50 hover:text-black transition-all duration-200 px-3 py-2 rounded-md"
             >
               {item.label}
             </Link>
@@ -60,7 +58,7 @@ export const MainHeader = async () => {
             ) : (
               <SignInDialog
                 trigger={
-                  <button className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors">
+                  <button className="bg-teal-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-600 transition-all duration-200 shadow-lg shadow-teal-500/25 hover:shadow-xl hover:shadow-teal-600/30 hover:scale-[1.02]">
                     Sign In
                   </button>
                 }
@@ -70,7 +68,7 @@ export const MainHeader = async () => {
 
           {/* Mobile menu */}
           <div className="md:hidden">
-            <MobileMenu
+            <MobileMenuWrapper
               user={session?.user}
               navigationItems={navigationItems}
             />

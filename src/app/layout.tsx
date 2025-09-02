@@ -6,7 +6,8 @@ import { Rubik } from "next/font/google";
 const rubik = Rubik({
   subsets: ["latin", "latin-ext"],
   display: "swap",
-  weight: ["400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-rubik",
 });
 
 export const metadata: Metadata = {

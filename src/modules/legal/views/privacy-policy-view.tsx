@@ -32,7 +32,7 @@ export const PrivacyPolicyView = () => {
                     1. Introduction
                   </h2>
                   <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg mb-6">
-                    <p className="text-gray-700 text-sm leading-relaxed mb-4">
+                    <p className="text-gray-700 text-base leading-relaxed mb-4">
                       Welcome to {siteConfig.name} (&quot;we,&quot;
                       &quot;our,&quot; or &quot;the Service&quot;). We are
                       committed to protecting your privacy and personal data.
@@ -40,7 +40,7 @@ export const PrivacyPolicyView = () => {
                       and protect the information you provide when using our AI
                       image and video generation services.
                     </p>
-                    <p className="text-gray-700 text-sm leading-relaxed">
+                    <p className="text-gray-700 text-base leading-relaxed">
                       By using our Service, you agree to the collection and use
                       of information in accordance with this Privacy Policy. If
                       you do not agree with this policy, please do not use our
@@ -73,7 +73,7 @@ export const PrivacyPolicyView = () => {
                   <h3 className="text-lg font-semibold text-gray-800 mb-3">
                     2.1 Information You Provide Directly
                   </h3>
-                  <ul className="list-disc list-inside space-y-1.5 mb-5 text-gray-700 text-sm">
+                  <ul className="list-disc list-inside space-y-2 mb-6 text-gray-700 text-base leading-relaxed">
                     <li>
                       <strong>Google Account Information:</strong> When you sign
                       in through Google, we collect your email address, name,
@@ -98,7 +98,7 @@ export const PrivacyPolicyView = () => {
                   <h3 className="text-lg font-semibold text-gray-800 mb-3">
                     2.2 Automatically Collected Information
                   </h3>
-                  <ul className="list-disc list-inside space-y-1.5 text-gray-700 text-sm">
+                  <ul className="list-disc list-inside space-y-2 text-gray-700 text-base leading-relaxed">
                     <li>
                       <strong>Usage Data:</strong> How you use our Service,
                       including feature usage frequency and types of content
@@ -125,10 +125,10 @@ export const PrivacyPolicyView = () => {
                   <h2 className="text-xl font-bold text-gray-900 mb-5">
                     3. How We Use Your Information
                   </h2>
-                  <p className="text-gray-700 text-sm mb-3">
+                  <p className="text-gray-700 text-base leading-relaxed mb-4">
                     We use the collected information for the following purposes:
                   </p>
-                  <ul className="list-disc list-inside space-y-1.5 mb-5 text-gray-700 text-sm">
+                  <ul className="list-disc list-inside space-y-2 mb-6 text-gray-700 text-base leading-relaxed">
                     <li>
                       <strong>Provide Services:</strong> Process your AI
                       generation requests, manage your account, and provide
@@ -185,7 +185,7 @@ export const PrivacyPolicyView = () => {
                   <h3 className="text-lg font-semibold text-gray-800 mb-3">
                     4.1 Third-Party Service Providers
                   </h3>
-                  <ul className="list-disc list-inside space-y-1.5 mb-5 text-gray-700 text-sm">
+                  <ul className="list-disc list-inside space-y-2 mb-6 text-gray-700 text-base leading-relaxed">
                     <li>
                       <strong>Payment Processing:</strong> Stripe, PayPal,
                       Creem, and other payment platforms process transactions
@@ -219,7 +219,7 @@ export const PrivacyPolicyView = () => {
                   <h3 className="text-lg font-semibold text-gray-800 mb-3">
                     4.3 Legal Requirements
                   </h3>
-                  <p className="text-gray-700 text-sm">
+                  <p className="text-gray-700 text-base leading-relaxed">
                     We may disclose your information when required by law or to
                     protect our rights and user safety.
                   </p>
@@ -230,11 +230,11 @@ export const PrivacyPolicyView = () => {
                   <h2 className="text-xl font-bold text-gray-900 mb-5">
                     5. Data Security
                   </h2>
-                  <p className="text-gray-700 text-sm mb-3">
+                  <p className="text-gray-700 text-base leading-relaxed mb-4">
                     We implement reasonable technical and organizational
                     measures to protect your personal information:
                   </p>
-                  <ul className="list-disc list-inside space-y-1.5 mb-5 text-gray-700 text-sm">
+                  <ul className="list-disc list-inside space-y-2 mb-6 text-gray-700 text-base leading-relaxed">
                     <li>
                       Use encryption technology to protect data transmission and
                       storage
@@ -260,11 +260,11 @@ export const PrivacyPolicyView = () => {
                   <h2 className="text-xl font-bold text-gray-900 mb-5">
                     6. Your Rights
                   </h2>
-                  <p className="text-gray-700 text-sm mb-3">
+                  <p className="text-gray-700 text-base leading-relaxed mb-4">
                     Under applicable data protection laws (including GDPR), you
                     have the following rights:
                   </p>
-                  <ul className="list-disc list-inside space-y-1.5 mb-5 text-gray-700 text-sm">
+                  <ul className="list-disc list-inside space-y-2 mb-6 text-gray-700 text-base leading-relaxed">
                     <li>
                       <strong>Right of Access:</strong> Request copies of your
                       personal data we hold
@@ -294,7 +294,7 @@ export const PrivacyPolicyView = () => {
                       previously given consent at any time
                     </li>
                   </ul>
-                  <p className="text-gray-700 text-sm">
+                  <p className="text-gray-700 text-base leading-relaxed">
                     To exercise these rights, please contact us at:{" "}
                     <strong>{siteConfig.contact.email}</strong>
                   </p>
@@ -305,11 +305,11 @@ export const PrivacyPolicyView = () => {
                   <h2 className="text-xl font-bold text-gray-900 mb-5">
                     7. Data Retention
                   </h2>
-                  <p className="text-gray-700 text-sm mb-3">
+                  <p className="text-gray-700 text-base leading-relaxed mb-4">
                     We retain your personal data according to the following
                     principles:
                   </p>
-                  <ul className="list-disc list-inside space-y-1.5 mb-5 text-gray-700 text-sm">
+                  <ul className="list-disc list-inside space-y-2 mb-6 text-gray-700 text-base leading-relaxed">
                     <li>
                       <strong>Account Data:</strong> Retained during your
                       account&apos;s existence and for a reasonable period after
@@ -328,7 +328,7 @@ export const PrivacyPolicyView = () => {
                       periods required by laws and regulations
                     </li>
                   </ul>
-                  <p className="text-gray-700 text-sm">
+                  <p className="text-gray-700 text-base leading-relaxed">
                     When we no longer need your data, we will securely delete or
                     anonymize it.
                   </p>
@@ -363,12 +363,12 @@ export const PrivacyPolicyView = () => {
                   <h2 className="text-xl font-bold text-gray-900 mb-5">
                     9. International Data Transfers
                   </h2>
-                  <p className="text-gray-700 text-sm mb-3">
+                  <p className="text-gray-700 text-base leading-relaxed mb-4">
                     Since we use cloud services located in the United States
                     (Neon database), your data may be transferred to the US for
                     processing and storage. We ensure:
                   </p>
-                  <ul className="list-disc list-inside space-y-1.5 text-gray-700 text-sm">
+                  <ul className="list-disc list-inside space-y-2 text-gray-700 text-base leading-relaxed">
                     <li>
                       Selection of service providers that comply with
                       international data protection standards
@@ -388,11 +388,11 @@ export const PrivacyPolicyView = () => {
                   <h2 className="text-xl font-bold text-gray-900 mb-5">
                     10. Policy Changes
                   </h2>
-                  <p className="text-gray-700 text-sm mb-3">
+                  <p className="text-gray-700 text-base leading-relaxed mb-4">
                     We may update this Privacy Policy from time to time. For
                     significant changes, we will:
                   </p>
-                  <ul className="list-disc list-inside space-y-1.5 mb-5 text-gray-700 text-sm">
+                  <ul className="list-disc list-inside space-y-2 mb-6 text-gray-700 text-base leading-relaxed">
                     <li>Post notices in prominent locations on our website</li>
                     <li>Notify registered users via email</li>
                     <li>
@@ -400,7 +400,7 @@ export const PrivacyPolicyView = () => {
                       this page
                     </li>
                   </ul>
-                  <p className="text-gray-700 text-sm">
+                  <p className="text-gray-700 text-base leading-relaxed">
                     Continued use of our Service constitutes acceptance of the
                     updated policy.
                   </p>
@@ -411,7 +411,7 @@ export const PrivacyPolicyView = () => {
                   <h2 className="text-xl font-bold text-gray-900 mb-5">
                     11. Contact Us
                   </h2>
-                  <p className="text-gray-700 text-sm mb-3">
+                  <p className="text-gray-700 text-base leading-relaxed mb-4">
                     If you have any questions or concerns about this Privacy
                     Policy, please contact us:
                   </p>
@@ -419,7 +419,7 @@ export const PrivacyPolicyView = () => {
                     <p className="text-gray-700 text-sm mb-2">
                       <strong>Email:</strong> {siteConfig.contact.email}
                     </p>
-                    <p className="text-gray-700 text-sm">
+                    <p className="text-gray-700 text-base leading-relaxed">
                       <strong>Website:</strong> {siteConfig.url}
                     </p>
                   </div>
