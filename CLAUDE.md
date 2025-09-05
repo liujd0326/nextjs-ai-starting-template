@@ -39,6 +39,33 @@
 - **Cloudflare Workers** - 边缘计算部署
 - CDN 加速和全球分发
 
+## 开发环境配置
+
+### 包管理工具
+
+- **pnpm** - 项目使用 pnpm 作为包管理工具，请统一使用 pnpm 命令
+- **代码质量检查**: 使用 `pnpm lint:format` 进行 ESLint 检查和代码格式化
+- **本地服务**: 开发者会自行启动本地开发服务，无需协助启动
+
+### 常用命令
+
+```bash
+# 安装依赖
+pnpm install
+
+# 代码检查和格式化
+pnpm lint:format
+
+# 构建项目
+pnpm build
+
+# 数据库迁移
+pnpm db:migrate
+
+# 生成数据库类型
+pnpm db:generate
+```
+
 ## 开发规范
 
 ### 代码风格

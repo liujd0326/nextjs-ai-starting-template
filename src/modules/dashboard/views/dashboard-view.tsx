@@ -13,9 +13,13 @@ import {
 } from "@/components/ui/card";
 
 interface User {
+  id: string;
   name?: string | null;
   email?: string | null;
   image?: string | null;
+  currentPlan?: string | null;
+  monthlyCredits?: number | null;
+  purchasedCredits?: number | null;
 }
 
 interface DashboardViewProps {
@@ -23,6 +27,8 @@ interface DashboardViewProps {
 }
 
 export const DashboardView = ({ user }: DashboardViewProps) => {
+  const totalCredits = (user.monthlyCredits || 0) + (user.purchasedCredits || 0);
+  const planName = user.currentPlan || 'free';
   return (
     <div className="space-y-6">
       <div>
@@ -99,11 +105,24 @@ export const DashboardView = ({ user }: DashboardViewProps) => {
               <Zap className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">150</div>
+              <div className="text-2xl font-bold">{totalCredits}</div>
               <p className="text-xs text-muted-foreground">Available credits</p>
-              <Badge variant="secondary" className="mt-2">
-                Pro Plan
-              </Badge>
+              <div className="space-y-2 mt-2">
+                <Badge variant="secondary" className="capitalize">
+                  {planName} Plan
+                </Badge>
+                <div className="text-xs text-muted-foreground space-y-1">
+                  <div>Monthly: {user.monthlyCredits || 0}</div>
+                  <div>Purchased: {user.purchasedCredits || 0}</div>
+                </div>
+                {totalCredits < 10 && (
+                  <Button asChild size="sm" className="w-full text-xs h-7">
+                    <Link href="/pricing">
+                      Buy More Credits
+                    </Link>
+                  </Button>
+                )}
+              </div>
             </CardContent>
           </Card>
         </MotionDiv>

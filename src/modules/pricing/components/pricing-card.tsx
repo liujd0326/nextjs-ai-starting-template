@@ -1,10 +1,10 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check } from "lucide-react";
-import Link from "next/link";
 
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { PricingPlan } from "@/config/site";
+
+import { PricingCardActions } from "./pricing-card-actions";
 
 interface PricingCardProps {
   plan: PricingPlan;
@@ -88,8 +88,9 @@ export const PricingCard = ({ plan, isYearly, className = "" }: PricingCardProps
       </CardContent>
 
       <CardFooter className="flex flex-col gap-3 px-4 sm:px-6 pb-6">
-        <Button
-          asChild
+        <PricingCardActions 
+          plan={plan} 
+          isYearly={isYearly}
           className={`w-full h-11 text-sm font-medium ${
             plan.popular
               ? "bg-primary text-primary-foreground hover:bg-primary/90"
@@ -98,11 +99,7 @@ export const PricingCard = ({ plan, isYearly, className = "" }: PricingCardProps
               : "bg-white text-gray-900 border-2 border-gray-200 hover:bg-gray-50"
           }`}
           variant={plan.popular ? "default" : plan.free ? "default" : "outline"}
-        >
-          <Link href={plan.free ? "/sign-up" : "/pricing/checkout"}>
-            {plan.buttonText}
-          </Link>
-        </Button>
+        />
         <p className="text-xs text-center text-muted-foreground leading-relaxed px-2">
           {plan.note}
         </p>

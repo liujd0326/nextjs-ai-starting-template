@@ -1,9 +1,13 @@
 import "./globals.css";
+// Initialize payment providers
+import "@/lib/payment";
 
 import type { Metadata } from "next";
 import { Rubik } from "next/font/google";
 
 import { CookieBanner } from "@/components/cookie-banner";
+import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 const rubik = Rubik({
   subsets: ["latin", "latin-ext"],
@@ -23,10 +27,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${rubik.className} antialiased`}>
-        {children}
-        <CookieBanner />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <CookieBanner />
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

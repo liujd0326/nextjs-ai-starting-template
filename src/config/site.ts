@@ -22,7 +22,7 @@ export interface SiteConfig {
     free: PricingPlan;
     starter: PricingPlan;
     pro: PricingPlan;
-    enterprise: PricingPlan;
+    credits_pack: PricingPlan;
   };
   social: {
     twitter?: string;
@@ -83,7 +83,7 @@ export const siteConfig: SiteConfig = {
         "Commercial usage rights",
       ],
       paymentMethods: ["Credit Card", "PayPal"],
-      buttonText: "Get Started",
+      buttonText: "Subscribe Now",
       note: "Cancel anytime",
     },
 
@@ -103,27 +103,27 @@ export const siteConfig: SiteConfig = {
         "Advanced analytics",
       ],
       paymentMethods: ["Credit Card", "PayPal"],
-      buttonText: "Start Free Trial",
-      note: "14-day free trial",
+      buttonText: "Subscribe Now",
+      note: "Cancel anytime",
     },
 
-    enterprise: {
-      name: "Enterprise",
-      price: 99.99,
-      monthlyPrice: 99.99,
-      yearlyPrice: 999.9,
+    credits_pack: {
+      name: "Credits Pack",
+      price: 34.99,
+      monthlyPrice: 34.99,
+      yearlyPrice: 34.99,
       currency: "USD",
-      description: "For large teams and organizations",
+      description: "1000 credits for your AI creations",
       features: [
-        "Unlimited AI generations",
-        "Dedicated support manager",
-        "Custom integrations",
-        "Advanced security features",
-        "SLA guarantee",
+        "1000 AI generations",
+        "All premium models access",
+        "Priority processing",
+        "Commercial usage rights",
+        "Credits never expire",
       ],
-      paymentMethods: ["Credit Card", "Invoice", "Wire Transfer"],
-      buttonText: "Contact Sales",
-      note: "Custom enterprise pricing available",
+      paymentMethods: ["Credit Card", "PayPal"],
+      buttonText: "Buy Credits",
+      note: "One-time purchase, credits never expire",
     },
   },
 

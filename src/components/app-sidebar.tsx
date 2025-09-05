@@ -2,12 +2,12 @@
 
 import {
   ChevronUp,
+  CreditCard,
   Home,
   ImageIcon,
   LogOut,
   Palette,
   Settings,
-  User,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -24,7 +24,6 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -58,6 +57,11 @@ const navigation = [
     title: "Image to Image",
     url: "/dashboard/image-to-image",
     icon: Palette,
+  },
+  {
+    title: "Subscription",
+    url: "/subscription",
+    icon: CreditCard,
   },
   {
     title: "Settings",

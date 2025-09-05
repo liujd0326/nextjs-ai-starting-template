@@ -1,16 +1,21 @@
 import { eq } from "drizzle-orm";
+import { Metadata } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { db } from "@/db";
 import { user } from "@/db/schema";
 import { auth } from "@/lib/auth";
-import { DashboardView } from "@/modules/dashboard/views/dashboard-view";
+import { getCurrentSubscriptionAction } from "@/modules/payment/actions/subscription-actions";
+import { SubscriptionManagementView } from "@/modules/payment/views/subscription-management-view";
 
-const DashboardPage = async () => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+export const metadata: Metadata = {
+  title: "Subscription Management",
+  description: "Manage your subscription and billing information.",
+};
+
+const SubscriptionPage = async () => {
+  const session = await auth.api.getSession({ headers: await headers() });
 
   if (!session?.user) {
     redirect("/sign-in");
@@ -34,7 +39,11 @@ const DashboardPage = async () => {
     redirect("/sign-in");
   }
 
-  return <DashboardView user={userInfo} />;
+  const subscription = await getCurrentSubscriptionAction();
+
+  return (
+    <SubscriptionManagementView user={userInfo} subscription={subscription} />
+  );
 };
 
-export default DashboardPage;
+export default SubscriptionPage;

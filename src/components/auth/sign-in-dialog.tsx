@@ -22,6 +22,7 @@ interface SignInDialogProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   onSuccess?: () => void;
+  callbackURL?: string;
 }
 
 const SignInDialog = ({
@@ -29,6 +30,7 @@ const SignInDialog = ({
   open,
   onOpenChange,
   onSuccess,
+  callbackURL = "/",
 }: SignInDialogProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -45,7 +47,7 @@ const SignInDialog = ({
     try {
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/",
+        callbackURL: callbackURL,
       });
 
       // 登录成功后关闭弹窗并执行回调

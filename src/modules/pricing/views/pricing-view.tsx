@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Globe, Shield, TrendingUp, Zap } from "lucide-react";
+import { Globe, Shield, TrendingUp, Zap } from "lucide-react";
 import { useState } from "react";
 
 import { MotionDiv, MotionH1, MotionP } from "@/components/motion-wrapper";

@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 
-import { PricingView } from "@/modules/pricing/views/pricing-view";
 import { siteConfig } from "@/config/site";
+import { PricingView } from "@/modules/pricing/views/pricing-view";
 
 export const metadata: Metadata = {
   title: "Pricing | " + siteConfig.name,
