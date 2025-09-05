@@ -11,6 +11,7 @@ import { PricingToggle } from "../components/pricing-toggle";
 
 export const PricingView = () => {
   const [isYearly, setIsYearly] = useState(false);
+  const isYearlyPricingEnabled = process.env.NEXT_PUBLIC_ENABLE_YEARLY_PRICING === 'true';
 
   const plans = Object.values(siteConfig.pricing);
 
@@ -62,7 +63,9 @@ export const PricingView = () => {
             </MotionP>
           </div>
 
-          <PricingToggle isYearly={isYearly} onToggle={setIsYearly} />
+          {isYearlyPricingEnabled && (
+            <PricingToggle isYearly={isYearly} onToggle={setIsYearly} />
+          )}
         </div>
       </div>
 
@@ -80,7 +83,7 @@ export const PricingView = () => {
               >
                 <PricingCard
                   plan={plan}
-                  isYearly={isYearly}
+                  isYearly={isYearlyPricingEnabled ? isYearly : false}
                   className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 w-full max-w-sm"
                 />
               </MotionDiv>

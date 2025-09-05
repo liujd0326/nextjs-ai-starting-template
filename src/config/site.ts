@@ -8,10 +8,17 @@ export interface PricingPlan {
   description: string;
   popular?: boolean;
   free?: boolean;
+  isSubscription?: boolean;
+  hasYearlyOption?: boolean;
   features: string[];
   paymentMethods: string[];
   buttonText: string;
   note: string;
+  stripePriceIds?: {
+    monthly?: string;
+    yearly?: string;
+    oneTime?: string;
+  };
 }
 
 export interface SiteConfig {
@@ -57,6 +64,8 @@ export const siteConfig: SiteConfig = {
       currency: "USD",
       description: "Perfect for trying out our AI tools",
       free: true,
+      isSubscription: false,
+      hasYearlyOption: false,
       features: [
         "10 AI generations per month",
         "Basic image generation",
@@ -75,6 +84,8 @@ export const siteConfig: SiteConfig = {
       yearlyPrice: 99.9,
       currency: "USD",
       description: "Great for individuals and small projects",
+      isSubscription: true,
+      hasYearlyOption: true,
       features: [
         "100 AI generations per month",
         "High-quality image generation",
@@ -85,6 +96,14 @@ export const siteConfig: SiteConfig = {
       paymentMethods: ["Credit Card", "PayPal"],
       buttonText: "Subscribe Now",
       note: "Cancel anytime",
+      stripePriceIds: {
+        monthly: process.env.NODE_ENV === 'production' 
+          ? process.env.STRIPE_PRICE_STARTER_MONTHLY
+          : process.env.STRIPE_PRICE_STARTER_MONTHLY_TEST,
+        yearly: process.env.NODE_ENV === 'production'
+          ? process.env.STRIPE_PRICE_STARTER_YEARLY
+          : process.env.STRIPE_PRICE_STARTER_YEARLY_TEST,
+      },
     },
 
     pro: {
@@ -95,6 +114,8 @@ export const siteConfig: SiteConfig = {
       currency: "USD",
       description: "Perfect for professionals and teams",
       popular: true,
+      isSubscription: true,
+      hasYearlyOption: true,
       features: [
         "500 AI generations per month",
         "Premium AI models access",
@@ -105,6 +126,14 @@ export const siteConfig: SiteConfig = {
       paymentMethods: ["Credit Card", "PayPal"],
       buttonText: "Subscribe Now",
       note: "Cancel anytime",
+      stripePriceIds: {
+        monthly: process.env.NODE_ENV === 'production'
+          ? process.env.STRIPE_PRICE_PRO_MONTHLY
+          : process.env.STRIPE_PRICE_PRO_MONTHLY_TEST,
+        yearly: process.env.NODE_ENV === 'production'
+          ? process.env.STRIPE_PRICE_PRO_YEARLY
+          : process.env.STRIPE_PRICE_PRO_YEARLY_TEST,
+      },
     },
 
     credits_pack: {
@@ -114,6 +143,8 @@ export const siteConfig: SiteConfig = {
       yearlyPrice: 34.99,
       currency: "USD",
       description: "1000 credits for your AI creations",
+      isSubscription: false,
+      hasYearlyOption: false,
       features: [
         "1000 AI generations",
         "All premium models access",
@@ -124,6 +155,11 @@ export const siteConfig: SiteConfig = {
       paymentMethods: ["Credit Card", "PayPal"],
       buttonText: "Buy Credits",
       note: "One-time purchase, credits never expire",
+      stripePriceIds: {
+        oneTime: process.env.NODE_ENV === 'production'
+          ? process.env.STRIPE_PRICE_CREDITS_PACK
+          : process.env.STRIPE_PRICE_CREDITS_PACK_TEST,
+      },
     },
   },
 
@@ -157,12 +193,34 @@ export const siteConfig: SiteConfig = {
 
 export const getPricingPlans = () => {
   return [
+    siteConfig.pricing.free,
     siteConfig.pricing.starter,
-    siteConfig.pricing.standard,
-    siteConfig.pricing.premium,
+    siteConfig.pricing.pro,
+    siteConfig.pricing.credits_pack,
+  ];
+};
+
+export const getSubscriptionPlans = () => {
+  return [
+    siteConfig.pricing.starter,
+    siteConfig.pricing.pro,
   ];
 };
 
 export const getPopularPlan = () => {
   return Object.values(siteConfig.pricing).find((plan) => plan.popular);
+};
+
+export const getStripePriceId = (plan: PricingPlan, isYearly: boolean): string | undefined => {
+  if (!plan.stripePriceIds) return undefined;
+  
+  if (!plan.isSubscription) {
+    return plan.stripePriceIds.oneTime;
+  }
+  
+  if (!plan.hasYearlyOption || !isYearly) {
+    return plan.stripePriceIds.monthly;
+  }
+  
+  return plan.stripePriceIds.yearly;
 };

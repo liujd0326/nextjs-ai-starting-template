@@ -445,24 +445,24 @@ export class StripeProvider extends BasePaymentProvider {
     plan: string,
     interval: "month" | "year"
   ): Promise<string> {
-    // For simplicity, we'll hardcode price IDs here
-    // In production, you might want to store these in database or config
-    const priceMapping: Record<string, Record<string, string>> = {
-      starter: {
-        month: "price_1S2tkADEgF6lKjvIIT6B0JDk",
-        year: "price_1S2tkADEgF6lKjvIZoahaS1T",
-      },
-      pro: {
-        month: "price_1S2tnfDEgF6lKjvIu4FcAIhe",
-        year: "price_1S2to2DEgF6lKjvI5Y4Afj5J",
-      },
-      credits_pack: {
-        month: "price_1S2tolDEgF6lKjvI9pmtYPHo",
-        year: "price_1S2tolDEgF6lKjvIEweVww7u",
-      },
-    };
-
-    return priceMapping[plan]?.[interval] || "price_default";
+    // Import siteConfig to get price IDs from environment variables
+    const { siteConfig, getStripePriceId } = await import("@/config/site");
+    
+    // Find the plan in siteConfig
+    const planConfig = Object.values(siteConfig.pricing).find(p => p.name.toLowerCase() === plan.toLowerCase());
+    
+    if (!planConfig) {
+      throw new Error(`Plan not found: ${plan}`);
+    }
+    
+    // Get the appropriate price ID using our helper function
+    const priceId = getStripePriceId(planConfig, interval === "year");
+    
+    if (!priceId) {
+      throw new Error(`Price ID not found for plan: ${plan}, interval: ${interval}`);
+    }
+    
+    return priceId;
   }
 
   private convertToProviderSubscription(

@@ -13,9 +13,11 @@ interface PricingCardProps {
 }
 
 export const PricingCard = ({ plan, isYearly, className = "" }: PricingCardProps) => {
-  const currentPrice = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
-  const monthlyPrice = isYearly ? plan.yearlyPrice / 12 : plan.monthlyPrice;
-  const discountPercentage = isYearly && plan.monthlyPrice > 0 
+  // 对于没有包年选项的计划，强制使用月付价格
+  const effectiveIsYearly = plan.hasYearlyOption ? isYearly : false;
+  const currentPrice = effectiveIsYearly ? plan.yearlyPrice : plan.monthlyPrice;
+  const monthlyPrice = effectiveIsYearly ? plan.yearlyPrice / 12 : plan.monthlyPrice;
+  const discountPercentage = effectiveIsYearly && plan.monthlyPrice > 0 && plan.hasYearlyOption
     ? Math.round((1 - (plan.yearlyPrice / 12) / plan.monthlyPrice) * 100) 
     : 0;
 
@@ -60,16 +62,25 @@ export const PricingCard = ({ plan, isYearly, className = "" }: PricingCardProps
                 <span className="text-3xl sm:text-4xl font-bold">
                   ${monthlyPrice.toFixed(2)}
                 </span>
-                <span className="text-sm text-muted-foreground ml-1">/month</span>
+                {plan.isSubscription ? (
+                  <span className="text-sm text-muted-foreground ml-1">/month</span>
+                ) : (
+                  <span className="text-sm text-muted-foreground ml-1">one-time</span>
+                )}
               </div>
-              {isYearly && (
+              {effectiveIsYearly && plan.hasYearlyOption && (
                 <div className="text-sm text-muted-foreground">
                   ${currentPrice.toFixed(2)} billed yearly
                 </div>
               )}
-              {!isYearly && (
+              {!effectiveIsYearly && plan.isSubscription && (
                 <div className="text-sm text-muted-foreground">
                   ${currentPrice.toFixed(2)} billed monthly
+                </div>
+              )}
+              {!plan.isSubscription && (
+                <div className="text-sm text-muted-foreground">
+                  One-time purchase
                 </div>
               )}
             </>
@@ -90,7 +101,7 @@ export const PricingCard = ({ plan, isYearly, className = "" }: PricingCardProps
       <CardFooter className="flex flex-col gap-3 px-4 sm:px-6 pb-6">
         <PricingCardActions 
           plan={plan} 
-          isYearly={isYearly}
+          isYearly={effectiveIsYearly}
           className={`w-full h-11 text-sm font-medium ${
             plan.popular
               ? "bg-primary text-primary-foreground hover:bg-primary/90"

@@ -48,23 +48,21 @@ export async function createOneTimePaymentAction(
       customerId = `cus_${session.user.id}`;
     }
 
-    // Create Stripe checkout session for one-time payment
+    // Create Stripe checkout session for one-time payment using price ID
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const stripe = (provider as { stripe: any }).stripe;
+    
+    // Get the credits pack price ID from configuration
+    const { getStripePriceId } = await import("@/config/site");
+    const creditsPackPlan = siteConfig.pricing.credits_pack;
+    const priceId = getStripePriceId(creditsPackPlan, false); // Credits pack doesn't have yearly option
     
     const checkoutSession = await stripe.checkout.sessions.create({
       customer: customerId,
       payment_method_types: ['card'],
       line_items: [
         {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: `${credits} AI Credits`,
-              description: description,
-            },
-            unit_amount: Math.round(amount * 100), // Convert to cents
-          },
+          price: priceId, // Use the configured price ID
           quantity: 1,
         },
       ],

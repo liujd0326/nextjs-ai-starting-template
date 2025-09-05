@@ -35,8 +35,8 @@ export const PricingCardActions = ({
       try {
         let result;
         
-        // Handle Enterprise plan as one-time payment
-        if (plan.name === "Enterprise") {
+        // Handle Credits Pack as one-time payment
+        if (plan.name === "Credits Pack" || !plan.isSubscription) {
           result = await createCreditPackagePaymentAction();
         } else {
           // Convert plan name to subscription plan type

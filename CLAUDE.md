@@ -29,14 +29,25 @@
 ### UI 与样式
 
 - **shadcn/ui** - 组件库，基于 Radix UI
-- **Tailwind CSS** - 原子化 CSS 框架
-- **Framer Motion** - 动画库，用于页面转场和交互动画
+- **Tailwind CSS v4** - 最新版本原子化 CSS 框架
+- **Motion** (Framer Motion v12) - 动画库，用于页面转场和交互动画
+- **next-themes** - 深色/浅色主题切换支持
+- **Sonner** - Toast 通知组件
 - 响应式设计，移动端优先
+
+### 支付系统
+
+- **Stripe** - 主要支付提供商，支持订阅和一次性支付
+- **Creem & PayPal** - 备用支付提供商（配置中）
+- 多支付提供商架构，易于扩展
+- Webhook 处理，自动同步支付状态
+- 积分系统，支持订阅积分和一次性购买积分
 
 ### 存储与部署
 
 - **Cloudflare R2** - 静态资源存储（图片、生成内容）
 - **Cloudflare Workers** - 边缘计算部署
+- **OpenNext.js** - Cloudflare 部署适配器
 - CDN 加速和全球分发
 
 ## 开发环境配置
@@ -53,17 +64,26 @@
 # 安装依赖
 pnpm install
 
+# 开发（带热重载）
+pnpm dev
+
+# 开发（包含 webhook 测试）
+pnpm dev:all
+
 # 代码检查和格式化
 pnpm lint:format
 
 # 构建项目
 pnpm build
 
-# 数据库迁移
-pnpm db:migrate
+# 部署到 Cloudflare
+pnpm deploy
 
-# 生成数据库类型
-pnpm db:generate
+# 数据库相关
+pnpm db:push      # 推送 schema 变更
+pnpm db:migrate   # 运行迁移
+pnpm db:generate  # 生成类型
+pnpm db:studio    # 打开数据库管理界面
 ```
 
 ## 开发规范
@@ -119,9 +139,16 @@ pnpm db:generate
 
 - **Google OAuth 登录**: 仅支持 Google 账号登录，无传统注册流程
 - 登录后自动将用户信息记录到数据库
-- 积分/额度系统
+- **积分/额度系统**:
+  - 月度积分（订阅用户）
+  - 一次性购买积分（永久有效）
+  - 自动重置和到期管理
+- **订阅管理**:
+  - Free、Starter、Pro 和 Credits Pack 套餐
+  - 月付/年付选项
+  - 自动续费和取消管理
 - 使用历史记录
-- 订阅和付费功能
+- 完整的支付和订阅生命周期管理
 
 ### 文件管理
 
@@ -256,6 +283,150 @@ import { MotionDiv, MotionSection, MotionH1 } from '@/components/motion-wrapper'
 **可用组件**: `MotionDiv`, `MotionSection`, `MotionH1`, `MotionH2`, `MotionH3`, `MotionP`, `MotionSpan`
 **注意**: 如需要其他 HTML 元素的动画版本，可以继续在 `src/components/motion-wrapper.tsx` 中添加
 
+## 数据库设计
+
+### 核心表结构
+
+- **user** - 用户信息，包含计划、积分和重置日期
+- **subscriptions** - 订阅记录，支持多支付提供商
+- **payments** - 支付记录，追踪所有交易
+- **userCredits** - 用户积分详情，支持不同类型和到期管理
+- **webhookEvents** - Webhook 事件记录，防重复处理
+- **session/account/verification** - Better Auth 认证相关表
+
+### 枚举定义
+
+- **subscriptionStatusEnum**: active, canceled, past_due, unpaid, trialing, paused
+- **paymentProviderEnum**: stripe, creem, paypal
+- **paymentStatusEnum**: pending, succeeded, failed, canceled, refunded
+- **subscriptionPlanEnum**: free, starter, pro, credits_pack
+
+## 环境变量配置
+
+### 必需配置
+
+```bash
+# 应用基础配置
+NEXT_PUBLIC_APP_NAME="AI Template"
+BETTER_AUTH_SECRET="your-auth-secret"
+BETTER_AUTH_URL="http://localhost:3000"
+DATABASE_URL="your-neon-db-url"
+
+# Google OAuth
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
+
+# 支付配置
+DEFAULT_PAYMENT_PROVIDER="stripe"
+NEXT_PUBLIC_ENABLE_YEARLY_PRICING="true"
+```
+
+### Stripe 配置
+
+```bash
+# 测试环境
+STRIPE_SECRET_KEY_TEST="sk_test_..."
+STRIPE_WEBHOOK_SECRET_TEST="whsec_..."
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_TEST="pk_test_..."
+
+# 生产环境
+STRIPE_SECRET_KEY="sk_live_..."
+STRIPE_WEBHOOK_SECRET="whsec_..."
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_live_..."
+
+# 价格 ID 配置
+STRIPE_PRICE_STARTER_MONTHLY_TEST="price_test_starter_monthly"
+STRIPE_PRICE_STARTER_YEARLY_TEST="price_test_starter_yearly"
+STRIPE_PRICE_PRO_MONTHLY_TEST="price_test_pro_monthly"
+STRIPE_PRICE_PRO_YEARLY_TEST="price_test_pro_yearly"
+STRIPE_PRICE_CREDITS_PACK_TEST="price_test_credits_pack"
+```
+
+## 支付系统架构
+
+### 多支付提供商设计
+
+- **BasePaymentProvider** - 抽象基类定义通用接口
+- **StripeProvider** - Stripe 实现
+- **PaymentProviderFactory** - 工厂模式创建提供商实例
+- **PaymentService** - 统一业务逻辑层
+
+### 主要功能
+
+1. **订阅管理** - 创建、更新、取消订阅
+2. **一次性支付** - 积分包购买
+3. **Webhook 处理** - 自动同步支付状态
+4. **积分系统** - 月度重置和永久积分
+5. **客户管理** - 跨平台客户信息同步
+
+### 支付流程
+
+1. 用户选择套餐或积分包
+2. Server Action 创建支付会话
+3. 重定向到支付提供商页面
+4. 支付完成后 Webhook 通知
+5. 系统自动更新用户状态和积分
+
+## 项目结构详解
+
+### 应用路由 (`src/app`)
+
+- `(auth)/` - 认证相关页面
+- `(dashboard)/` - 仪表板和订阅管理
+- `(marketing)/` - 营销页面（定价、支付成功等）
+- `api/` - API 路由（认证端点、Webhooks）
+
+### 模块化架构 (`src/modules`)
+
+- `auth/` - 认证模块
+- `dashboard/` - 仪表板模块
+- `legal/` - 法律条款模块
+- `payment/` - 支付系统模块（完整实现）
+- `pricing/` - 定价展示模块
+
+### 支付模块结构
+
+```
+src/modules/payment/
+├── actions/          # Server Actions
+├── components/       # UI 组件
+├── providers/        # 支付提供商实现
+├── services/         # 业务逻辑服务
+├── types/           # TypeScript 类型
+├── utils/           # 工具函数
+└── views/           # 视图组件
+```
+
+## 开发注意事项
+
+### 支付系统
+
+- 测试时使用测试环境的 API 密钥
+- Webhook 端点需要 HTTPS（本地使用 ngrok）
+- 支付金额以分为单位存储
+- 所有支付操作都需要幂等性检查
+
+### 数据库操作
+
+- 使用事务处理复杂操作
+- 支付相关操作必须有错误处理和回滚
+- 定期清理过期的 Webhook 事件
+- 积分操作需要原子性保证
+
+### 安全考虑
+
+- Webhook 签名验证是必需的
+- 支付金额和用户 ID 必须严格验证
+- 敏感信息不得记录在日志中
+- API 访问需要适当的权限检查
+
+### 错误处理
+
+- 支付失败需要友好的用户提示
+- Webhook 处理失败需要重试机制
+- 积分不足时给出明确的升级指引
+- 订阅状态异常需要客服介入流程
+
 ## 注意事项
 
 - 所有用户输入都需要验证和清理
@@ -263,3 +434,4 @@ import { MotionDiv, MotionSection, MotionH1 } from '@/components/motion-wrapper'
 - AI API 调用需要实现重试机制和错误处理
 - 定期清理临时文件和过期数据
 - 遵循 Cloudflare Workers 的资源限制
+- 支付相关操作务必确保数据一致性和安全性
