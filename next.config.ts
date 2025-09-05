@@ -1,7 +1,19 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    domains: ['pub-2ae454b1ea4a40cd85bf5601bcd25b0a.r2.dev'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.r2.dev',
+      },
+      {
+        protocol: 'https', 
+        hostname: '*.r2.cloudflarestorage.com',
+      }
+    ],
+  },
 };
 
 export default nextConfig;

@@ -427,6 +427,88 @@ src/modules/payment/
 - 积分不足时给出明确的升级指引
 - 订阅状态异常需要客服介入流程
 
+## 文件存储系统 (Cloudflare R2)
+
+### R2 上传功能
+
+项目集成了 Cloudflare R2 对象存储服务，用于处理图片和文件上传。
+
+### 配置要求
+
+```bash
+# Cloudflare R2 配置
+R2_ACCOUNT_ID=你的32位账户ID
+R2_ACCESS_KEY_ID=访问密钥ID
+R2_SECRET_ACCESS_KEY=秘密访问密钥
+R2_BUCKET_NAME=你的存储桶名称
+R2_PUBLIC_URL=https://你的域名.com  # 自定义域名或 R2 提供的公共 URL
+```
+
+### Next.js 图片域名配置
+
+需要在 `next.config.ts` 中配置允许的图片域名：
+
+```typescript
+const nextConfig: NextConfig = {
+  images: {
+    domains: ['your-bucket.r2.dev'], // 添加你的 R2 域名
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.r2.dev',
+      },
+    ],
+  },
+};
+```
+
+### 核心上传方法
+
+**文件位置**: `src/lib/storage/r2.ts`
+
+```typescript
+import { uploadToR2 } from '@/lib/storage/r2';
+
+// 基本上传
+const result = await uploadToR2(file);
+
+// 上传到指定文件夹
+const result = await uploadToR2(file, 'images');
+
+// 指定文件名
+const result = await uploadToR2(file, 'uploads', 'my-file.jpg');
+```
+
+**返回值**:
+```typescript
+interface UploadResult {
+  url: string;  // 公开访问的 URL
+  key: string;  // 文件在 R2 中的唯一标识
+}
+```
+
+### 技术特性
+
+- **S3 兼容**: 使用 AWS SDK 的 S3 客户端与 R2 交互
+- **唯一文件名**: 自动使用 UUID 生成唯一文件名避免冲突
+- **内容类型检测**: 自动检测和设置正确的 MIME 类型
+- **错误处理**: 完整的错误处理和环境变量验证
+- **延迟初始化**: 客户端在需要时创建，避免连接复用问题
+
+### 使用场景
+
+- AI 生成图片的存储
+- 用户头像上传
+- 文档和媒体文件存储
+- 任何需要公开访问的静态资源
+
+### 安全注意事项
+
+- 确保 R2 访问密钥安全存储
+- 对上传文件进行大小和类型限制
+- 定期清理不再使用的文件
+- 考虑实现文件访问权限控制
+
 ## 注意事项
 
 - 所有用户输入都需要验证和清理
@@ -435,3 +517,4 @@ src/modules/payment/
 - 定期清理临时文件和过期数据
 - 遵循 Cloudflare Workers 的资源限制
 - 支付相关操作务必确保数据一致性和安全性
+- R2 上传的文件会自动生成唯一文件名，避免命名冲突
