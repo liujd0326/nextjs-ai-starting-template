@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useRef,useState } from 'react';
 import { toast } from 'sonner';
 
+import { SignInDialog } from '@/components/auth/sign-in-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,7 +15,6 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
-import { SignInDialog } from '@/components/auth/sign-in-dialog';
 
 import { generateImageToImage } from '../actions/image-to-image';
 import { FaceToManyKontextInput } from '../types';

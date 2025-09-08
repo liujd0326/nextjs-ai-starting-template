@@ -3,11 +3,9 @@
 import {
   ChevronUp,
   CreditCard,
+  History,
   Home,
-  ImageIcon,
   LogOut,
-  Palette,
-  Settings,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -49,24 +47,14 @@ const navigation = [
     icon: Home,
   },
   {
-    title: "Text to Image",
-    url: "/dashboard/text-to-image",
-    icon: ImageIcon,
-  },
-  {
-    title: "Image to Image",
-    url: "/dashboard/image-to-image",
-    icon: Palette,
+    title: "Generation History",
+    url: "/dashboard/generations",
+    icon: History,
   },
   {
     title: "Subscription",
-    url: "/subscription",
+    url: "/dashboard/subscription",
     icon: CreditCard,
-  },
-  {
-    title: "Settings",
-    url: "/dashboard/settings",
-    icon: Settings,
   },
 ];
 
