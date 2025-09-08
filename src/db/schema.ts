@@ -17,6 +17,14 @@ export const subscriptionPlanEnum = pgEnum('subscription_plan', [
   'free', 'starter', 'pro', 'credits_pack'
 ]);
 
+export const generationStatusEnum = pgEnum('generation_status', [
+  'pending', 'processing', 'completed', 'failed'
+]);
+
+export const generationTypeEnum = pgEnum('generation_type', [
+  'text_to_image', 'image_to_image'
+]);
+
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -196,4 +204,40 @@ export const webhookEvents = pgTable("webhook_events", {
     .$defaultFn(() => /* @__PURE__ */ new Date())
     .notNull(),
   processedAt: timestamp("processed_at"),
+});
+
+export const aiGenerations = pgTable("ai_generations", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  // Generation details
+  type: generationTypeEnum("type").notNull(),
+  status: generationStatusEnum("status")
+    .$defaultFn(() => 'pending')
+    .notNull(),
+  // Input data
+  inputImageUrl: text("input_image_url"), // for image_to_image
+  prompt: text("prompt"), // for text_to_image
+  // Model configuration
+  model: text("model").notNull(), // e.g., "flux-kontext-apps/face-to-many-kontext"
+  parameters: text("parameters").notNull(), // JSON string of model parameters
+  // Output data
+  outputImageUrls: text("output_image_urls"), // JSON array of generated image URLs
+  replicateId: text("replicate_id"), // Replicate prediction ID
+  // Cost tracking
+  creditsUsed: integer("credits_used")
+    .$defaultFn(() => 1)
+    .notNull(),
+  // Error tracking
+  errorMessage: text("error_message"),
+  // Timestamps
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
 });
