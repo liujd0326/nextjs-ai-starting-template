@@ -13,7 +13,6 @@ const navigationItems = [
   { href: "/create", label: "Create" },
   { href: "/pricing", label: "Pricing" },
   { href: "/blog", label: "Blog" },
-  { href: "/contact", label: "Contact" },
 ];
 
 export const MainHeader = async () => {

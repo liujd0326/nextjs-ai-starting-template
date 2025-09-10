@@ -21,6 +21,8 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // 获取 session 仅用于显示用户信息
+  // 认证检查已在中间件中处理
   const session = await auth.api.getSession({
     headers: await headers(),
   });
