@@ -3,19 +3,45 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function SubscriptionLoading() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
-      <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <Skeleton className="h-10 w-96 mx-auto mb-2" />
-          <Skeleton className="h-6 w-80 mx-auto" />
+    <div className="max-w-[1600px] mx-auto px-16 py-12 space-y-12">
+        {/* Welcome Header */}
+        <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-3xl p-12 text-white relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32"></div>
+          <div className="relative z-10">
+            <Skeleton className="h-10 w-80 mb-2 bg-white/20" />
+            <Skeleton className="h-6 w-96 bg-white/10" />
+          </div>
         </div>
 
-        {/* Current Plan Card */}
-        <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-          <CardHeader className="pb-6">
-            <div className="flex items-center justify-between">
-              <div>
+        <div className="space-y-8">
+          {/* Current Plan - Full Width */}
+          <Card className="border-0 shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Skeleton className="w-6 h-6 mr-3" />
+                <Skeleton className="h-6 w-32" />
+              </CardTitle>
+              <CardDescription>
+                <Skeleton className="h-4 w-48 mt-2" />
+              </CardDescription>
+            </CardHeader>
+          
+            <CardContent>
+              {/* No Active Subscription Skeleton */}
+              <div className="text-center py-12">
+                <Skeleton className="w-16 h-16 mx-auto rounded-full mb-4" />
+                <Skeleton className="h-6 w-48 mx-auto mb-2" />
+                <Skeleton className="h-5 w-64 mx-auto mb-6" />
+                <Skeleton className="h-10 w-32 mx-auto rounded" />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Bottom Row - Two Cards Side by Side */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Usage Overview Card */}
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
                 <CardTitle className="flex items-center">
                   <Skeleton className="w-6 h-6 mr-3" />
                   <Skeleton className="h-6 w-32" />
@@ -23,72 +49,55 @@ export default function SubscriptionLoading() {
                 <CardDescription>
                   <Skeleton className="h-4 w-48 mt-2" />
                 </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-        
-          <CardContent className="space-y-6">
-            {/* No Active Subscription Skeleton */}
-            <div className="text-center py-12 px-6">
-              <Skeleton className="w-20 h-20 mx-auto rounded-full mb-4" />
-              <Skeleton className="h-8 w-64 mx-auto mb-3" />
-              <Skeleton className="h-5 w-80 mx-auto mb-6" />
-              <Skeleton className="h-12 w-40 mx-auto rounded-xl" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Usage Overview Card */}
-        <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-          <CardHeader className="pb-6">
-            <CardTitle className="flex items-center">
-              <Skeleton className="w-6 h-6 mr-3" />
-              <Skeleton className="h-6 w-32" />
-            </CardTitle>
-            <CardDescription>
-              <Skeleton className="h-4 w-48 mt-2" />
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl">
-                  <Skeleton className="h-8 w-16 mx-auto mb-2" />
-                  <Skeleton className="h-4 w-24 mx-auto" />
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div className="text-center p-8 bg-emerald-50 rounded-xl border border-emerald-200">
+                    <Skeleton className="h-10 w-16 mx-auto mb-1" />
+                    <Skeleton className="h-4 w-24 mx-auto" />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    {[...Array(2)].map((_, i) => (
+                      <div key={i} className="text-center p-6 bg-gray-50 rounded-xl border border-gray-200">
+                        <Skeleton className="h-6 w-14 mx-auto mb-2" />
+                        <Skeleton className="h-4 w-16 mx-auto" />
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
 
-        {/* Account Information Card */}
-        <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-          <CardHeader className="pb-6">
-            <CardTitle className="flex items-center">
-              <Skeleton className="w-6 h-6 mr-3" />
-              <Skeleton className="h-6 w-40" />
-            </CardTitle>
-            <CardDescription>
-              <Skeleton className="h-4 w-48 mt-2" />
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="p-4 bg-gray-50 rounded-xl">
-                <Skeleton className="h-4 w-12 mb-2" />
-                <Skeleton className="h-6 w-24" />
-              </div>
-              <div className="p-4 bg-gray-50 rounded-xl">
-                <Skeleton className="h-4 w-12 mb-2" />
-                <Skeleton className="h-6 w-32" />
-              </div>
-            </div>
-            <div className="pt-4 border-t">
-              <Skeleton className="h-4 w-96" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            {/* Account Information Card */}
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Skeleton className="w-6 h-6 mr-3" />
+                  <Skeleton className="h-6 w-40" />
+                </CardTitle>
+                <CardDescription>
+                  <Skeleton className="h-4 w-32 mt-2" />
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="p-4 bg-gray-50 rounded-xl">
+                    <Skeleton className="h-4 w-12 mb-1" />
+                    <Skeleton className="h-6 w-24" />
+                  </div>
+                  <div className="p-4 bg-gray-50 rounded-xl">
+                    <Skeleton className="h-4 w-12 mb-1" />
+                    <Skeleton className="h-6 w-32" />
+                  </div>
+                </div>
+                <div className="pt-4 border-t">
+                  <Skeleton className="h-4 w-full" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
     </div>
   );
 }

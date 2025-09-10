@@ -13,6 +13,7 @@ import {
 import Image from "next/image";
 import { useState } from "react";
 
+import { MotionDiv } from "@/components/motion-wrapper";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -310,190 +311,227 @@ export const GenerationHistoryView = ({
   }
 
   return (
-    <div className={className}>
+    <div className={`max-w-7xl mx-auto px-6 py-8 ${className}`}>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Generation History</h1>
-          <p className="text-muted-foreground">
-            View and manage your AI-generated images
-          </p>
-        </div>
+      <MotionDiv
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="mb-12"
+      >
+        <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-3xl p-10 text-white relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32"></div>
+          <div className="relative z-10">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+              <div>
+                <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
+                  <ImageIcon className="h-10 w-10" />
+                  Generation History ✨
+                </h1>
+                <p className="text-lg text-emerald-100">
+                  View and manage your AI-generated masterpieces
+                </p>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row items-start sm:items-center lg:items-center gap-4">
+                <div className="flex items-center gap-3 bg-white/20 backdrop-blur-sm rounded-xl p-3">
+                  <span className="text-sm font-medium text-white">Status:</span>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-32 bg-white/90 border-0 text-gray-900">
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="processing">Processing</SelectItem>
+                      <SelectItem value="failed">Failed</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">Status:</span>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-32">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="processing">Processing</SelectItem>
-                <SelectItem value="failed">Failed</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="text-sm text-muted-foreground">
-            {filteredGenerations.length} of {generations.length} generations
+                <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-2">
+                  <span className="text-sm font-medium text-emerald-100">
+                    {filteredGenerations.length} of {generations.length}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </MotionDiv>
 
       {/* Generation Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredGenerations.map((generation) => {
-          const imageUrls = getImageUrls(generation);
-          const currentImageUrl = getCurrentImageUrl(generation);
+      <MotionDiv
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredGenerations.map((generation, index) => {
+            const imageUrls = getImageUrls(generation);
+            const currentImageUrl = getCurrentImageUrl(generation);
 
-          return (
-            <Card
-              key={generation.id}
-              className="overflow-hidden hover:shadow-md transition-shadow"
-            >
-              <CardHeader className="px-4 pb-1">
-                <div className="flex items-center justify-between">
-                  <Badge
-                    variant={getStatusBadgeVariant(generation.status)}
-                    className="text-xs"
-                  >
-                    {generation.status}
-                  </Badge>
-                  <p className="text-xs text-muted-foreground">
-                    {formatDate(generation.createdAt)}
-                  </p>
-                </div>
-              </CardHeader>
+            return (
+              <MotionDiv
+                key={generation.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.1 }}
+              >
+                <Card
+                  className="overflow-hidden hover:shadow-[0_12px_40px_rgb(0,0,0,0.15)] transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm hover:scale-105 group"
+                >
+                <CardHeader className="px-6 pb-2">
+                  <div className="flex items-center justify-between">
+                    <Badge
+                      variant={getStatusBadgeVariant(generation.status)}
+                      className="text-xs font-medium shadow-sm"
+                    >
+                      {generation.status}
+                    </Badge>
+                    <div className="bg-gradient-to-r from-emerald-100 to-teal-100 px-3 py-1 rounded-full">
+                      <p className="text-xs font-medium text-emerald-700">
+                        {formatDate(generation.createdAt)}
+                      </p>
+                    </div>
+                  </div>
+                </CardHeader>
 
-              <CardContent className="px-4">
-                {/* Image Carousel */}
-                <div className="relative mb-8">
-                  {currentImageUrl ? (
-                    <div className="relative w-full h-40 bg-muted rounded-lg overflow-hidden group">
-                      <Image
-                        src={currentImageUrl}
-                        alt="Generated image"
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      />
+                <CardContent className="px-6 pb-6">
+                  {/* Image Carousel */}
+                  <div className="relative mb-6">
+                    {currentImageUrl ? (
+                      <div className="relative w-full h-48 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_12px_40px_rgb(0,0,0,0.18)] transition-all duration-300">
+                        <Image
+                          src={currentImageUrl}
+                          alt="Generated image"
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        />
 
-                      {/* Navigation arrows for multiple images */}
-                      {imageUrls.length > 1 && (
-                        <>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              prevImage(generation.id, imageUrls.length);
-                            }}
-                            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <ChevronLeft className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              nextImage(generation.id, imageUrls.length);
-                            }}
-                            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <ChevronRight className="w-4 h-4" />
-                          </button>
-                        </>
-                      )}
-
-                      {/* Image indicators */}
-                      {imageUrls.length > 1 && (
-                        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-1">
-                          {imageUrls.map((_, index) => (
+                        {/* Navigation arrows for multiple images */}
+                        {imageUrls.length > 1 && (
+                          <>
                             <button
-                              key={index}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setCurrentImageIndex(generation.id, index);
+                                prevImage(generation.id, imageUrls.length);
                               }}
-                              className={`w-2 h-2 rounded-full transition-colors ${
-                                getCurrentImageIndex(generation.id) === index
-                                  ? "bg-white"
-                                  : "bg-white/50"
-                              }`}
-                            />
-                          ))}
-                        </div>
-                      )}
+                              className="absolute left-3 top-1/2 transform -translate-y-1/2 bg-white/90 backdrop-blur-sm hover:bg-white text-gray-800 rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg hover:scale-110"
+                            >
+                              <ChevronLeft className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                nextImage(generation.id, imageUrls.length);
+                              }}
+                              className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-white/90 backdrop-blur-sm hover:bg-white text-gray-800 rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg hover:scale-110"
+                            >
+                              <ChevronRight className="w-4 h-4" />
+                            </button>
+                          </>
+                        )}
 
-                      {/* Image counter */}
-                      {imageUrls.length > 1 && (
-                        <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
-                          {getCurrentImageIndex(generation.id) + 1}/
-                          {imageUrls.length}
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="w-full h-40 bg-muted rounded-lg flex items-center justify-center">
-                      {generation.status === "processing" ? (
-                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                          <Loader2 className="h-6 w-6 animate-spin" />
-                          <span className="text-sm">Processing...</span>
-                        </div>
-                      ) : generation.status === "failed" ? (
-                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                          <AlertTriangle className="h-6 w-6" />
-                          <span className="text-sm">Failed</span>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                          <ImageIcon className="h-6 w-6" />
-                          <span className="text-sm">No Image</span>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                        {/* Image indicators */}
+                        {imageUrls.length > 1 && (
+                          <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-2">
+                            {imageUrls.map((_, index) => (
+                              <button
+                                key={index}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setCurrentImageIndex(generation.id, index);
+                                }}
+                                className={`w-3 h-3 rounded-full transition-all duration-300 shadow-lg ${
+                                  getCurrentImageIndex(generation.id) === index
+                                    ? "bg-white scale-125"
+                                    : "bg-white/60 hover:bg-white/80"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Image counter */}
+                        {imageUrls.length > 1 && (
+                          <div className="absolute top-3 right-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-xs font-medium px-3 py-1 rounded-full shadow-lg">
+                            {getCurrentImageIndex(generation.id) + 1}/{imageUrls.length}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="w-full h-48 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl flex items-center justify-center shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                        {generation.status === "processing" ? (
+                          <div className="flex flex-col items-center gap-3 text-gray-600">
+                            <div className="p-4 bg-blue-100 rounded-full">
+                              <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                            </div>
+                            <span className="text-sm font-medium">Processing...</span>
+                          </div>
+                        ) : generation.status === "failed" ? (
+                          <div className="flex flex-col items-center gap-3 text-gray-600">
+                            <div className="p-4 bg-red-100 rounded-full">
+                              <AlertTriangle className="h-8 w-8 text-red-600" />
+                            </div>
+                            <span className="text-sm font-medium">Generation Failed</span>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center gap-3 text-gray-600">
+                            <div className="p-4 bg-gray-100 rounded-full">
+                              <ImageIcon className="h-8 w-8 text-gray-500" />
+                            </div>
+                            <span className="text-sm font-medium">No Image Available</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
                 </div>
 
-                {/* Error message */}
-                {generation.errorMessage && (
-                  <div className="bg-red-50 border border-red-200 rounded-md p-2 mb-3">
-                    <p className="text-xs text-red-800">
-                      {generation.errorMessage}
-                    </p>
-                  </div>
-                )}
+                  {/* Error message */}
+                  {generation.errorMessage && (
+                    <div className="bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-200 rounded-xl p-3 mb-4 shadow-sm">
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4 text-red-600 flex-shrink-0" />
+                        <p className="text-sm text-red-800 font-medium">
+                          {generation.errorMessage}
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
-                {/* Actions */}
-                {currentImageUrl && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                    onClick={() => downloadImagesAsZipFile(generation)}
-                    disabled={downloadingIds.has(generation.id)}
-                  >
-                    {downloadingIds.has(generation.id) ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Creating ZIP...
-                      </>
-                    ) : (
-                      <>
-                        <Archive className="h-4 w-4 mr-2" />
-                        Download{" "}
-                        {imageUrls.length > 1
-                          ? `(${imageUrls.length} images)`
-                          : ""}
-                      </>
-                    )}
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+                  {/* Actions */}
+                  {currentImageUrl && (
+                    <Button
+                      className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-medium py-3 rounded-xl shadow-[0_4px_20px_rgb(5,150,105,0.3)] hover:shadow-[0_6px_25px_rgb(5,150,105,0.4)] transition-all duration-300 hover:scale-105"
+                      onClick={() => downloadImagesAsZipFile(generation)}
+                      disabled={downloadingIds.has(generation.id)}
+                    >
+                      {downloadingIds.has(generation.id) ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Creating ZIP...
+                        </>
+                      ) : (
+                        <>
+                          <Archive className="h-4 w-4 mr-2" />
+                          Download{" "}
+                          {imageUrls.length > 1
+                            ? `(${imageUrls.length} images)`
+                            : "Image"}
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </CardContent>
+                </Card>
+              </MotionDiv>
+            );
+          })}
+        </div>
+      </MotionDiv>
     </div>
   );
 };
