@@ -165,18 +165,19 @@ export const AppSidebar = ({ user }: AppSidebarProps) => {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu
-              className={`space-y-1 ${state === "collapsed" ? "items-center px-0" : "px-4"}`}
+              className={`space-y-1 ${state === "collapsed" && !isMobile ? "items-center px-0" : "px-4"}`}
             >
               {navigation.map((item) => {
                 const isActive = pathname === item.url;
+                const shouldCollapse = state === "collapsed" && !isMobile;
                 return (
                   <SidebarMenuItem
                     key={item.title}
                     className={
-                      state === "collapsed" ? "flex justify-center" : ""
+                      shouldCollapse ? "flex justify-center" : ""
                     }
                   >
-                    {state === "collapsed" ? (
+                    {shouldCollapse ? (
                       <Link
                         href={item.url}
                         className={`flex items-center justify-center w-8 h-8 rounded-md hover:bg-accent transition-colors ${isActive ? "bg-accent text-accent-foreground" : ""}`}

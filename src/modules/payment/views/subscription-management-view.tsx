@@ -92,14 +92,14 @@ export const SubscriptionManagementView = ({
   };
 
   return (
-    <div className="max-w-[1600px] mx-auto px-16 py-12 space-y-12">
+    <div className="max-w-[1600px] mx-auto px-4 md:px-8 lg:px-16 py-12 space-y-12">
         {/* Welcome Header */}
         <MotionDiv
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-3xl p-12 text-white relative overflow-hidden">
+          <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-3xl p-6 md:p-8 lg:p-12 text-white relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32"></div>
             <div className="relative z-10">
               <h1 className="text-4xl font-bold mb-2">
@@ -134,22 +134,22 @@ export const SubscriptionManagementView = ({
                 {subscription || (user.currentPlan && user.currentPlan !== 'free') ? (
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="flex justify-between items-center p-4 bg-emerald-50 rounded-xl border border-emerald-200">
-                        <span className="text-sm font-medium text-gray-600">Plan</span>
+                      <div className="flex justify-between items-center md:flex-col md:items-center md:text-center p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+                        <span className="text-sm font-medium text-gray-600 md:mb-2">Plan</span>
                         <span className="text-xl font-bold text-emerald-700 capitalize">{subscription?.plan || user.currentPlan}</span>
                       </div>
                       
                       {subscription && (
                         <>
-                          <div className="flex justify-between items-center p-4 bg-gray-50 rounded-xl border border-gray-200">
-                            <span className="text-sm font-medium text-gray-600">Price</span>
+                          <div className="flex justify-between items-center md:flex-col md:items-center md:text-center p-4 bg-gray-50 rounded-xl border border-gray-200">
+                            <span className="text-sm font-medium text-gray-600 md:mb-2">Price</span>
                             <span className="text-xl font-bold text-gray-900">
                               {formatPrice(subscription.amount, subscription.currency)}/{subscription.interval}
                             </span>
                           </div>
                           
-                          <div className="flex justify-between items-center p-4 bg-gray-50 rounded-xl border border-gray-200">
-                            <span className="text-sm font-medium text-gray-600">Next Billing</span>
+                          <div className="flex justify-between items-center md:flex-col md:items-center md:text-center p-4 bg-gray-50 rounded-xl border border-gray-200">
+                            <span className="text-sm font-medium text-gray-600 md:mb-2">Next Billing</span>
                             <span className="text-lg font-semibold text-gray-900">
                               {getNextBillingDate(new Date(subscription.currentPeriodEnd))}
                             </span>

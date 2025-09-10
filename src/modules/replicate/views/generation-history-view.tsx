@@ -311,7 +311,7 @@ export const GenerationHistoryView = ({
   }
 
   return (
-    <div className={`max-w-7xl mx-auto px-6 py-8 ${className}`}>
+    <div className={`max-w-7xl mx-auto px-4 md:px-6 py-8 ${className}`}>
       {/* Header */}
       <MotionDiv
         initial={{ opacity: 0, y: -20 }}
@@ -319,7 +319,7 @@ export const GenerationHistoryView = ({
         transition={{ duration: 0.5 }}
         className="mb-12"
       >
-        <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-3xl p-10 text-white relative overflow-hidden">
+        <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-3xl p-6 md:p-8 lg:p-10 text-white relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32"></div>
           <div className="relative z-10">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -382,7 +382,7 @@ export const GenerationHistoryView = ({
                 <Card
                   className="overflow-hidden hover:shadow-[0_12px_40px_rgb(0,0,0,0.15)] transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm hover:scale-105 group"
                 >
-                <CardHeader className="px-6 pb-2">
+                <CardHeader className="px-4 md:px-6 pb-2">
                   <div className="flex items-center justify-between">
                     <Badge
                       variant={getStatusBadgeVariant(generation.status)}
@@ -398,7 +398,7 @@ export const GenerationHistoryView = ({
                   </div>
                 </CardHeader>
 
-                <CardContent className="px-6 pb-6">
+                <CardContent className="px-4 md:px-6 pb-6">
                   {/* Image Carousel */}
                   <div className="relative mb-6">
                     {currentImageUrl ? (

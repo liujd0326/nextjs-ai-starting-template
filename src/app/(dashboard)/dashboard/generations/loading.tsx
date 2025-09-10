@@ -3,24 +3,24 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function GenerationsLoading() {
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8">
+    <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
       {/* Header Skeleton */}
       <div className="mb-12">
-        <div className="bg-gradient-to-r from-emerald-500/20 to-teal-600/20 rounded-3xl p-10 relative overflow-hidden animate-pulse">
+        <div className="bg-gradient-to-r from-emerald-500/20 to-teal-600/20 rounded-3xl p-6 md:p-8 lg:p-10 relative overflow-hidden animate-pulse">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32"></div>
           <div className="relative z-10">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
               <div>
-                <Skeleton className="h-12 w-80 mb-3 bg-white/30" />
-                <Skeleton className="h-6 w-96 bg-white/20" />
+                <Skeleton className="h-8 md:h-10 lg:h-12 w-3/4 max-w-80 mb-3 bg-white/30" />
+                <Skeleton className="h-5 md:h-6 w-full max-w-96 bg-white/20" />
               </div>
               
               <div className="flex flex-col sm:flex-row items-start sm:items-center lg:items-center gap-4">
                 <div className="flex items-center gap-3 bg-white/20 backdrop-blur-sm rounded-xl p-3">
-                  <Skeleton className="h-4 w-12 bg-white/30" />
-                  <Skeleton className="h-8 w-32 bg-white/40 rounded-lg" />
+                  <Skeleton className="h-4 w-10 md:w-12 bg-white/30" />
+                  <Skeleton className="h-8 w-24 md:w-32 bg-white/40 rounded-lg" />
                 </div>
-                <Skeleton className="h-8 w-20 bg-white/20 rounded-xl" />
+                <Skeleton className="h-8 w-16 md:w-20 bg-white/20 rounded-xl" />
               </div>
             </div>
           </div>
@@ -34,7 +34,7 @@ export default function GenerationsLoading() {
             key={i} 
             className="overflow-hidden border-0 bg-white/80 backdrop-blur-sm shadow-[0_8px_30px_rgb(0,0,0,0.08)] animate-pulse"
           >
-            <CardHeader className="px-6 pb-2">
+            <CardHeader className="px-4 md:px-6 pb-2">
               <div className="flex items-center justify-between">
                 <Skeleton className="h-6 w-20 rounded-full bg-emerald-100/50" />
                 <div className="bg-gradient-to-r from-emerald-100/30 to-teal-100/30 px-3 py-1 rounded-full">
@@ -42,7 +42,7 @@ export default function GenerationsLoading() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="px-6 pb-6">
+            <CardContent className="px-4 md:px-6 pb-6">
               {/* Image Skeleton */}
               <div className="relative mb-6">
                 <Skeleton className="w-full h-48 rounded-2xl bg-gradient-to-br from-emerald-50/50 to-teal-50/50" />

@@ -1,10 +1,10 @@
 import { headers } from "next/headers";
 
 import { AppSidebar } from "@/components/app-sidebar";
+import { DashboardSidebarProvider } from "@/components/dashboard-sidebar-provider";
 import { DynamicBreadcrumb } from "@/components/dynamic-breadcrumb";
 import {
   SidebarInset,
-  SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { auth } from "@/lib/auth";
@@ -21,15 +21,15 @@ export default async function DashboardLayout({
   });
 
   return (
-    <SidebarProvider>
+    <DashboardSidebarProvider>
       <AppSidebar user={session?.user} />
       <SidebarInset>
         <header className="flex h-12 shrink-0 items-center gap-2 px-4">
           <SidebarTrigger className="-ml-1" />
           <DynamicBreadcrumb />
         </header>
-        <main className="flex flex-1 flex-col gap-4 p-4">{children}</main>
+        <main className="flex flex-1 flex-col">{children}</main>
       </SidebarInset>
-    </SidebarProvider>
+    </DashboardSidebarProvider>
   );
 }

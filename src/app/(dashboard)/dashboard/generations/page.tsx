@@ -19,7 +19,7 @@ const GenerationsPage = async () => {
 
   if (!result.success) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 md:px-6 py-8">
         <div className="flex flex-col items-center justify-center py-12">
           <h1 className="text-2xl font-bold mb-4">Error Loading Generations</h1>
           <p className="text-muted-foreground">{result.message}</p>
@@ -29,7 +29,7 @@ const GenerationsPage = async () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto py-8">
       <GenerationHistoryView 
         initialGenerations={result.generations || []}
         className="max-w-7xl mx-auto"
