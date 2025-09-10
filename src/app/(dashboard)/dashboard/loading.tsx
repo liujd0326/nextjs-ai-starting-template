@@ -8,8 +8,8 @@ export default function DashboardLoading() {
       <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl md:rounded-3xl p-4 sm:p-6 md:p-8 lg:p-10 text-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32"></div>
         <div className="relative z-10">
-          <Skeleton className="h-8 md:h-10 w-3/4 max-w-80 mb-2 bg-white/20" />
-          <Skeleton className="h-5 md:h-6 w-full max-w-96 bg-white/10" />
+          <Skeleton className="h-8 md:h-10 w-3/4 md:w-80 lg:w-96 mb-2 bg-white/20" />
+          <Skeleton className="h-5 md:h-6 w-full md:w-96 lg:w-[500px] bg-white/10" />
         </div>
       </div>
 
@@ -18,7 +18,7 @@ export default function DashboardLoading() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <Skeleton className="h-6 md:h-8 w-2/3 max-w-48 mb-2" />
+              <Skeleton className="h-6 md:h-8 w-2/3 md:w-48 lg:w-64 mb-2" />
               <Skeleton className="h-4 w-20 md:w-24" />
             </div>
             <Skeleton className="h-6 w-16 md:w-20 rounded-full" />
@@ -47,15 +47,15 @@ export default function DashboardLoading() {
       {/* Main Feature */}
       <div>
         <div className="text-center mb-8">
-          <Skeleton className="h-8 md:h-9 w-2/3 max-w-64 mx-auto mb-3" />
-          <Skeleton className="h-5 md:h-6 w-3/4 max-w-96 mx-auto" />
+          <Skeleton className="h-8 md:h-9 w-2/3 md:w-64 lg:w-80 mx-auto mb-3" />
+          <Skeleton className="h-5 md:h-6 w-3/4 md:w-96 lg:w-[500px] mx-auto" />
         </div>
         
         <Card className="border-0 shadow-lg max-w-4xl mx-auto">
           <CardHeader className="text-center pb-12 px-6 md:px-12">
             <Skeleton className="w-20 h-20 rounded-full mx-auto mb-8" />
-            <Skeleton className="h-6 md:h-8 w-3/4 max-w-80 mx-auto mb-2" />
-            <Skeleton className="h-4 md:h-5 w-full max-w-96 mx-auto" />
+            <Skeleton className="h-6 md:h-8 w-3/4 md:w-80 lg:w-96 mx-auto mb-2" />
+            <Skeleton className="h-4 md:h-5 w-full md:w-96 lg:w-[500px] mx-auto" />
           </CardHeader>
           <CardContent className="text-center pb-16 px-6 md:px-12">
             <Skeleton className="h-10 md:h-12 w-36 md:w-48 mx-auto" />
@@ -66,8 +66,8 @@ export default function DashboardLoading() {
       {/* Quick Links */}
       <div>
         <div className="text-center mb-8">
-          <Skeleton className="h-6 md:h-8 w-2/5 max-w-48 mx-auto mb-2" />
-          <Skeleton className="h-4 md:h-5 w-3/4 max-w-80 mx-auto" />
+          <Skeleton className="h-6 md:h-8 w-2/5 md:w-48 lg:w-56 mx-auto mb-2" />
+          <Skeleton className="h-4 md:h-5 w-3/4 md:w-80 lg:w-96 mx-auto" />
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-12 max-w-6xl mx-auto">

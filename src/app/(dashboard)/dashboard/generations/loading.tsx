@@ -11,16 +11,16 @@ export default function GenerationsLoading() {
           <div className="relative z-10">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
               <div>
-                <Skeleton className="h-8 md:h-10 lg:h-12 w-3/4 max-w-80 mb-3 bg-white/30" />
-                <Skeleton className="h-5 md:h-6 w-full max-w-96 bg-white/20" />
+                <Skeleton className="h-8 md:h-10 lg:h-12 w-3/4 md:w-80 lg:w-96 mb-3 bg-white/30" />
+                <Skeleton className="h-5 md:h-6 w-full md:w-96 lg:w-[500px] bg-white/20" />
               </div>
               
               <div className="flex flex-col sm:flex-row items-start sm:items-center lg:items-center gap-4">
                 <div className="flex items-center gap-3 bg-white/20 backdrop-blur-sm rounded-xl p-3">
-                  <Skeleton className="h-4 w-10 md:w-12 bg-white/30" />
-                  <Skeleton className="h-8 w-24 md:w-32 bg-white/40 rounded-lg" />
+                  <Skeleton className="h-4 w-10 md:w-12 lg:w-16 bg-white/30" />
+                  <Skeleton className="h-8 w-24 md:w-32 lg:w-40 bg-white/40 rounded-lg" />
                 </div>
-                <Skeleton className="h-8 w-16 md:w-20 bg-white/20 rounded-xl" />
+                <Skeleton className="h-8 w-16 md:w-20 lg:w-24 bg-white/20 rounded-xl" />
               </div>
             </div>
           </div>

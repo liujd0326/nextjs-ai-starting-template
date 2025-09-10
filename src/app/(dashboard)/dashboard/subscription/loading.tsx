@@ -8,8 +8,8 @@ export default function SubscriptionLoading() {
         <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-3xl p-6 md:p-8 lg:p-12 text-white relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32"></div>
           <div className="relative z-10">
-            <Skeleton className="h-8 md:h-10 w-3/4 max-w-80 mb-2 bg-white/20" />
-            <Skeleton className="h-5 md:h-6 w-full max-w-96 bg-white/10" />
+            <Skeleton className="h-8 md:h-10 w-3/4 md:w-80 lg:w-96 mb-2 bg-white/20" />
+            <Skeleton className="h-5 md:h-6 w-full md:w-96 lg:w-[500px] bg-white/10" />
           </div>
         </div>
 
