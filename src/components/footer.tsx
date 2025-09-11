@@ -102,6 +102,14 @@ const Footer = () => {
                   Cookie Policy
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/dmca"
+                  className="text-gray-400 hover:text-white text-sm transition-colors"
+                >
+                  DMCA Policy
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
