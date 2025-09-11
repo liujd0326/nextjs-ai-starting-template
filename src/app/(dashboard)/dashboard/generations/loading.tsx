@@ -14,7 +14,7 @@ export default function GenerationsLoading() {
                 <Skeleton className="h-8 md:h-10 lg:h-12 w-3/4 md:w-80 lg:w-96 mb-3 bg-white/30" />
                 <Skeleton className="h-5 md:h-6 w-full md:w-96 lg:w-[500px] bg-white/20" />
               </div>
-              
+
               <div className="flex flex-col sm:flex-row items-start sm:items-center lg:items-center gap-4">
                 <div className="flex items-center gap-3 bg-white/20 backdrop-blur-sm rounded-xl p-3">
                   <Skeleton className="h-4 w-10 md:w-12 lg:w-16 bg-white/30" />
@@ -30,8 +30,8 @@ export default function GenerationsLoading() {
       {/* Generation Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {[...Array(6)].map((_, i) => (
-          <Card 
-            key={i} 
+          <Card
+            key={i}
             className="overflow-hidden border-0 bg-white/80 backdrop-blur-sm shadow-[0_8px_30px_rgb(0,0,0,0.08)] animate-pulse"
           >
             <CardHeader className="px-4 md:px-6 pb-2">
@@ -53,7 +53,10 @@ export default function GenerationsLoading() {
                 {/* Image indicators skeleton */}
                 <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-2">
                   {[...Array(3)].map((_, j) => (
-                    <Skeleton key={j} className="w-3 h-3 rounded-full bg-white/60" />
+                    <Skeleton
+                      key={j}
+                      className="w-3 h-3 rounded-full bg-white/60"
+                    />
                   ))}
                 </div>
               </div>

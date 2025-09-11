@@ -4,7 +4,10 @@ import { headers } from "next/headers";
 
 import { siteConfig } from "@/config/site";
 import { auth } from "@/lib/auth";
-import { getProviderConfig,PaymentProviderFactory } from "@/modules/payment/providers";
+import {
+  getProviderConfig,
+  PaymentProviderFactory,
+} from "@/modules/payment/providers";
 
 interface CreateOneTimePaymentResult {
   success: boolean;
@@ -16,22 +19,20 @@ interface CreateOneTimePaymentResult {
  * Create a one-time payment for credit purchase
  */
 export async function createOneTimePaymentAction(
-  credits: number,
-  amount: number,
-  description: string
+  credits: number
 ): Promise<CreateOneTimePaymentResult> {
   try {
     const session = await auth.api.getSession({ headers: await headers() });
-    
+
     if (!session?.user?.id) {
       return {
         success: false,
-        error: "Please sign in to continue"
+        error: "Please sign in to continue",
       };
     }
 
     // Initialize payment provider
-    const config = getProviderConfig('stripe');
+    const config = getProviderConfig("stripe");
     const provider = PaymentProviderFactory.createProvider(config);
 
     // Create customer if needed
@@ -40,7 +41,7 @@ export async function createOneTimePaymentAction(
       const customerResponse = await provider.createCustomer({
         userId: session.user.id,
         email: session.user.email,
-        name: session.user.name || undefined
+        name: session.user.name || undefined,
       });
       customerId = customerResponse.customerId;
     } catch {
@@ -49,43 +50,41 @@ export async function createOneTimePaymentAction(
     }
 
     // Create Stripe checkout session for one-time payment using price ID
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const stripe = (provider as { stripe: any }).stripe;
-    
+    const stripe = (provider as { stripe: Record<string, unknown> }).stripe;
+
     // Get the credits pack price ID from configuration
     const { getStripePriceId } = await import("@/config/site");
     const creditsPackPlan = siteConfig.pricing.credits_pack;
     const priceId = getStripePriceId(creditsPackPlan, false); // Credits pack doesn't have yearly option
-    
+
     const checkoutSession = await stripe.checkout.sessions.create({
       customer: customerId,
-      payment_method_types: ['card'],
+      payment_method_types: ["card"],
       line_items: [
         {
           price: priceId, // Use the configured price ID
           quantity: 1,
         },
       ],
-      mode: 'payment', // One-time payment
+      mode: "payment", // One-time payment
       success_url: `${siteConfig.url}/payment/success?type=credits`,
       cancel_url: `${siteConfig.url}/pricing?payment=canceled`,
       metadata: {
         userId: session.user.id,
-        type: 'credit_purchase',
+        type: "credit_purchase",
         credits: credits.toString(),
       },
     });
 
     return {
       success: true,
-      checkoutUrl: checkoutSession.url!
+      checkoutUrl: checkoutSession.url!,
     };
-
   } catch (error: unknown) {
-    console.error('One-time payment creation error:', error);
+    console.error("One-time payment creation error:", error);
     return {
       success: false,
-      error: (error as Error).message || "Failed to create payment"
+      error: (error as Error).message || "Failed to create payment",
     };
   }
 }
@@ -94,11 +93,7 @@ export async function createOneTimePaymentAction(
  * Create credit package payment for Credits Pack plan
  */
 export async function createCreditPackagePaymentAction(): Promise<CreateOneTimePaymentResult> {
-  const creditsPackPlan = siteConfig.pricing.credits_pack;
-  
   return createOneTimePaymentAction(
-    1000, // 1000 credits
-    creditsPackPlan.price,
-    "1000 AI Credits - Never expires"
+    1000 // 1000 credits
   );
 }

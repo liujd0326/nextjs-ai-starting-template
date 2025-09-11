@@ -3,10 +3,13 @@ import { SubscriptionPlan } from "../types/payment";
 /**
  * Format price in cents to display format
  */
-export function formatPrice(amountInCents: number, currency: string = 'USD'): string {
+export function formatPrice(
+  amountInCents: number,
+  currency: string = "USD"
+): string {
   const amount = amountInCents / 100;
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
     currency: currency.toUpperCase(),
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
@@ -23,7 +26,10 @@ export function priceToCents(price: number): number {
 /**
  * Calculate discount percentage
  */
-export function calculateDiscount(monthlyPrice: number, yearlyPrice: number): number {
+export function calculateDiscount(
+  monthlyPrice: number,
+  yearlyPrice: number
+): number {
   if (monthlyPrice === 0 || yearlyPrice === 0) return 0;
   const monthlyTotal = monthlyPrice * 12;
   return Math.round(((monthlyTotal - yearlyPrice) / monthlyTotal) * 100);
@@ -55,10 +61,10 @@ export function generateCustomerId(): string {
  */
 export function getPlanDisplayName(plan: SubscriptionPlan): string {
   const names = {
-    free: 'Free',
-    starter: 'Starter',
-    pro: 'Pro',
-    credits_pack: 'Credits Pack'
+    free: "Free",
+    starter: "Starter",
+    pro: "Pro",
+    credits_pack: "Credits Pack",
   };
   return names[plan] || plan;
 }
@@ -72,29 +78,29 @@ export function getPlanFeatures(plan: SubscriptionPlan): string[] {
       "10 AI generations per month",
       "Basic image generation",
       "Standard quality output",
-      "Community support"
+      "Community support",
     ],
     starter: [
       "100 AI generations per month",
-      "High-quality image generation", 
+      "High-quality image generation",
       "Multiple AI models",
       "Priority support",
-      "Commercial usage rights"
+      "Commercial usage rights",
     ],
     pro: [
       "500 AI generations per month",
       "Premium AI models access",
       "Advanced customization",
-      "Priority processing", 
-      "Advanced analytics"
+      "Priority processing",
+      "Advanced analytics",
     ],
     credits_pack: [
       "Unlimited AI generations",
       "Dedicated support manager",
       "Custom integrations",
       "Advanced security features",
-      "SLA guarantee"
-    ]
+      "SLA guarantee",
+    ],
   };
   return features[plan] || [];
 }
@@ -103,7 +109,7 @@ export function getPlanFeatures(plan: SubscriptionPlan): string[] {
  * Check if plan has unlimited credits
  */
 export function isUnlimitedPlan(plan: SubscriptionPlan): boolean {
-  return plan === 'credits_pack';
+  return plan === "credits_pack";
 }
 
 /**
@@ -114,7 +120,7 @@ export function getTrialDays(plan: SubscriptionPlan): number {
     free: 0,
     starter: 0,
     pro: 0,
-    credits_pack: 0
+    credits_pack: 0,
   };
   return trialDays[plan] || 0;
 }
@@ -122,7 +128,10 @@ export function getTrialDays(plan: SubscriptionPlan): number {
 /**
  * Validate webhook signature timing
  */
-export function isWebhookTimingValid(timestamp: number, toleranceInSeconds: number = 300): boolean {
+export function isWebhookTimingValid(
+  timestamp: number,
+  toleranceInSeconds: number = 300
+): boolean {
   const now = Math.floor(Date.now() / 1000);
   return Math.abs(now - timestamp) <= toleranceInSeconds;
 }
@@ -144,7 +153,7 @@ export function safeJsonParse<T>(jsonString: string, fallback: T): T {
 export function createCheckoutUrls(baseUrl: string, planId: string) {
   return {
     successUrl: `${baseUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}&plan=${planId}`,
-    cancelUrl: `${baseUrl}/pricing?canceled=true&plan=${planId}`
+    cancelUrl: `${baseUrl}/pricing?canceled=true&plan=${planId}`,
   };
 }
 
@@ -160,10 +169,10 @@ export function isValidEmail(email: string): boolean {
  * Get next billing date
  */
 export function getNextBillingDate(currentPeriodEnd: Date): string {
-  return currentPeriodEnd.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long', 
-    day: 'numeric'
+  return currentPeriodEnd.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 }
 
@@ -172,13 +181,13 @@ export function getNextBillingDate(currentPeriodEnd: Date): string {
  */
 export function formatSubscriptionStatus(status: string): string {
   const statusMap: Record<string, string> = {
-    'active': 'Active',
-    'canceled': 'Canceled', 
-    'past_due': 'Past Due',
-    'unpaid': 'Unpaid',
-    'trialing': 'Trial',
-    'paused': 'Paused'
+    active: "Active",
+    canceled: "Canceled",
+    past_due: "Past Due",
+    unpaid: "Unpaid",
+    trialing: "Trial",
+    paused: "Paused",
   };
-  
+
   return statusMap[status] || status.charAt(0).toUpperCase() + status.slice(1);
 }

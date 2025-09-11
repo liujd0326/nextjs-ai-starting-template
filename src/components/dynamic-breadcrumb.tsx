@@ -25,15 +25,17 @@ const routeNames: Record<string, string> = {
 
 // 获取路由的显示名称
 const getRouteName = (segment: string): string => {
-  return routeNames[segment] || segment.charAt(0).toUpperCase() + segment.slice(1);
+  return (
+    routeNames[segment] || segment.charAt(0).toUpperCase() + segment.slice(1)
+  );
 };
 
 export const DynamicBreadcrumb = () => {
   const pathname = usePathname();
-  
+
   // 解析路径段
   const pathSegments = pathname.split("/").filter(Boolean);
-  
+
   // 如果是根路径 /dashboard，显示 Dashboard > Overview
   if (pathSegments.length === 1 && pathSegments[0] === "dashboard") {
     return (
@@ -71,7 +73,10 @@ export const DynamicBreadcrumb = () => {
           </BreadcrumbItem>
         );
         breadcrumbItems.push(
-          <BreadcrumbSeparator key={`sep-${segment}`} className="hidden md:block" />
+          <BreadcrumbSeparator
+            key={`sep-${segment}`}
+            className="hidden md:block"
+          />
         );
       }
     } else if (isLast) {
@@ -90,9 +95,7 @@ export const DynamicBreadcrumb = () => {
           </BreadcrumbLink>
         </BreadcrumbItem>
       );
-      breadcrumbItems.push(
-        <BreadcrumbSeparator key={`sep-${segment}`} />
-      );
+      breadcrumbItems.push(<BreadcrumbSeparator key={`sep-${segment}`} />);
     }
   });
 

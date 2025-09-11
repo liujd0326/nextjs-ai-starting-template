@@ -20,7 +20,9 @@ export interface DeductCreditsResult {
 /**
  * Get user's current credit balance
  */
-export async function getUserCreditBalance(userId: string): Promise<CreditBalance | null> {
+export async function getUserCreditBalance(
+  userId: string
+): Promise<CreditBalance | null> {
   try {
     const [userRecord] = await db
       .select({
@@ -37,10 +39,11 @@ export async function getUserCreditBalance(userId: string): Promise<CreditBalanc
     return {
       monthlyCredits: userRecord.monthlyCredits || 0,
       purchasedCredits: userRecord.purchasedCredits || 0,
-      totalCredits: (userRecord.monthlyCredits || 0) + (userRecord.purchasedCredits || 0),
+      totalCredits:
+        (userRecord.monthlyCredits || 0) + (userRecord.purchasedCredits || 0),
     };
   } catch (error) {
-    console.error('Error getting credit balance:', error);
+    console.error("Error getting credit balance:", error);
     return null;
   }
 }
@@ -60,8 +63,12 @@ export async function deductCredits(
     if (!balance) {
       return {
         success: false,
-        remainingBalance: { monthlyCredits: 0, purchasedCredits: 0, totalCredits: 0 },
-        error: "User not found"
+        remainingBalance: {
+          monthlyCredits: 0,
+          purchasedCredits: 0,
+          totalCredits: 0,
+        },
+        error: "User not found",
       };
     }
 
@@ -70,7 +77,7 @@ export async function deductCredits(
       return {
         success: false,
         remainingBalance: balance,
-        error: `Insufficient credits. Required: ${amount}, Available: ${balance.totalCredits}`
+        error: `Insufficient credits. Required: ${amount}, Available: ${balance.totalCredits}`,
       };
     }
 
@@ -87,7 +94,10 @@ export async function deductCredits(
 
     // 2. Then, deduct from purchased credits if needed
     if (remainingToDeduct > 0 && newPurchasedCredits > 0) {
-      const deductFromPurchased = Math.min(remainingToDeduct, newPurchasedCredits);
+      const deductFromPurchased = Math.min(
+        remainingToDeduct,
+        newPurchasedCredits
+      );
       newPurchasedCredits -= deductFromPurchased;
       remainingToDeduct -= deductFromPurchased;
     }
@@ -98,7 +108,7 @@ export async function deductCredits(
       .set({
         monthlyCredits: newMonthlyCredits,
         purchasedCredits: newPurchasedCredits,
-        updatedAt: new Date()
+        updatedAt: new Date(),
       })
       .where(eq(user.id, userId));
 
@@ -106,7 +116,7 @@ export async function deductCredits(
     await db.insert(userCredits).values({
       id: `usage_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       userId: userId,
-      type: 'usage',
+      type: "usage",
       amount: -amount, // Negative amount indicates usage
       remaining: newMonthlyCredits + newPurchasedCredits,
       description: description || `Used ${amount} credits`,
@@ -122,13 +132,16 @@ export async function deductCredits(
       success: true,
       remainingBalance,
     };
-
   } catch (error) {
-    console.error('Error deducting credits:', error);
+    console.error("Error deducting credits:", error);
     return {
       success: false,
-      remainingBalance: { monthlyCredits: 0, purchasedCredits: 0, totalCredits: 0 },
-      error: "Failed to deduct credits"
+      remainingBalance: {
+        monthlyCredits: 0,
+        purchasedCredits: 0,
+        totalCredits: 0,
+      },
+      error: "Failed to deduct credits",
     };
   }
 }
@@ -139,7 +152,7 @@ export async function deductCredits(
 export async function addCredits(
   userId: string,
   amount: number,
-  type: 'monthly' | 'purchased',
+  type: "monthly" | "purchased",
   description?: string
 ): Promise<DeductCreditsResult> {
   try {
@@ -147,18 +160,24 @@ export async function addCredits(
     if (!balance) {
       return {
         success: false,
-        remainingBalance: { monthlyCredits: 0, purchasedCredits: 0, totalCredits: 0 },
-        error: "User not found"
+        remainingBalance: {
+          monthlyCredits: 0,
+          purchasedCredits: 0,
+          totalCredits: 0,
+        },
+        error: "User not found",
       };
     }
 
-    const newMonthlyCredits = type === 'monthly' 
-      ? balance.monthlyCredits + amount 
-      : balance.monthlyCredits;
-      
-    const newPurchasedCredits = type === 'purchased' 
-      ? balance.purchasedCredits + amount 
-      : balance.purchasedCredits;
+    const newMonthlyCredits =
+      type === "monthly"
+        ? balance.monthlyCredits + amount
+        : balance.monthlyCredits;
+
+    const newPurchasedCredits =
+      type === "purchased"
+        ? balance.purchasedCredits + amount
+        : balance.purchasedCredits;
 
     // Update user credits
     await db
@@ -166,7 +185,7 @@ export async function addCredits(
       .set({
         monthlyCredits: newMonthlyCredits,
         purchasedCredits: newPurchasedCredits,
-        updatedAt: new Date()
+        updatedAt: new Date(),
       })
       .where(eq(user.id, userId));
 
@@ -174,7 +193,7 @@ export async function addCredits(
     await db.insert(userCredits).values({
       id: `add_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       userId: userId,
-      type: type === 'monthly' ? 'monthly_reset' : 'one_time_purchase',
+      type: type === "monthly" ? "monthly_reset" : "one_time_purchase",
       amount: amount,
       remaining: newMonthlyCredits + newPurchasedCredits,
       description: description || `Added ${amount} ${type} credits`,
@@ -190,13 +209,16 @@ export async function addCredits(
       success: true,
       remainingBalance,
     };
-
   } catch (error) {
-    console.error('Error adding credits:', error);
+    console.error("Error adding credits:", error);
     return {
       success: false,
-      remainingBalance: { monthlyCredits: 0, purchasedCredits: 0, totalCredits: 0 },
-      error: "Failed to add credits"
+      remainingBalance: {
+        monthlyCredits: 0,
+        purchasedCredits: 0,
+        totalCredits: 0,
+      },
+      error: "Failed to add credits",
     };
   }
 }

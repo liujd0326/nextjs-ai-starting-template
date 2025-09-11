@@ -61,8 +61,8 @@ export const ContactView = () => {
             Contact Us
           </MotionH1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Need help or have questions? We're here to assist you with your AI
-            image generation needs.
+            Need help or have questions? We&apos;re here to assist you with your
+            AI image generation needs.
           </p>
         </MotionSection>
 
@@ -95,8 +95,8 @@ export const ContactView = () => {
                         Email Support
                       </h3>
                       <p className="text-gray-600 text-sm mb-3">
-                        Send us an email and we'll get back to you as soon as
-                        possible.
+                        Send us an email and we&apos;ll get back to you as soon
+                        as possible.
                       </p>
                       <Button asChild className="w-full">
                         <a href={mailtoLink}>

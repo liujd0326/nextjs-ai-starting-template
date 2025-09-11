@@ -21,8 +21,10 @@ import { createCheckoutUrls } from "../utils";
  */
 export async function createSubscriptionAction(
   plan: SubscriptionPlan,
-  interval: 'month' | 'year'
-): Promise<{ success: true; checkoutUrl: string } | { success: false; error: string }> {
+  interval: "month" | "year"
+): Promise<
+  { success: true; checkoutUrl: string } | { success: false; error: string }
+> {
   try {
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session?.user?.id) {
@@ -30,7 +32,7 @@ export async function createSubscriptionAction(
     }
 
     // Don't create subscription for free plan
-    if (plan === 'free') {
+    if (plan === "free") {
       return { success: false, error: "Free plan doesn't require payment" };
     }
 
@@ -46,11 +48,16 @@ export async function createSubscriptionAction(
       // Helper function to get plan level
       const getPlanLevel = (planName: string): number => {
         switch (planName) {
-          case 'free': return 0;
-          case 'starter': return 1;
-          case 'pro': return 2;
-          case 'credits_pack': return 1; // Same level as starter
-          default: return 0;
+          case "free":
+            return 0;
+          case "starter":
+            return 1;
+          case "pro":
+            return 2;
+          case "credits_pack":
+            return 1; // Same level as starter
+          default:
+            return 0;
         }
       };
 
@@ -58,50 +65,67 @@ export async function createSubscriptionAction(
       const targetLevel = getPlanLevel(plan);
 
       // Prevent downgrades for subscription plans
-      if (currentLevel > targetLevel && plan !== 'credits_pack') {
-        return { 
-          success: false, 
-          error: "Downgrade not allowed. Please cancel your current subscription first." 
+      if (currentLevel > targetLevel && plan !== "credits_pack") {
+        return {
+          success: false,
+          error:
+            "Downgrade not allowed. Please cancel your current subscription first.",
         };
       }
     }
 
     const paymentService = new PaymentService();
     const baseUrl = siteConfig.url;
-    
+
     const urls = createCheckoutUrls(baseUrl, plan);
-    
+
     const trialDays = getTrialDays(plan);
-    console.log(`[DEBUG] Creating subscription for plan: ${plan}, trialDays: ${trialDays}`);
-    
+    console.log(
+      `[DEBUG] Creating subscription for plan: ${plan}, trialDays: ${trialDays}`
+    );
+
     const subscriptionParams = {
       userId: session.user.id,
       plan,
       interval,
       successUrl: urls.successUrl,
       cancelUrl: urls.cancelUrl,
-      trialDays: trialDays
+      trialDays: trialDays,
     };
-    
-    console.log('[DEBUG] Subscription params:', JSON.stringify(subscriptionParams, null, 2));
-    
-    const subscriptionResponse = await paymentService.createSubscription(subscriptionParams);
+
+    console.log(
+      "[DEBUG] Subscription params:",
+      JSON.stringify(subscriptionParams, null, 2)
+    );
+
+    const subscriptionResponse =
+      await paymentService.createSubscription(subscriptionParams);
 
     if (subscriptionResponse.checkoutUrl) {
       return { success: true, checkoutUrl: subscriptionResponse.checkoutUrl };
     }
 
     return { success: false, error: "No checkout URL received" };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Failed to create subscription:", error);
-    return { success: false, error: error.message };
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error instanceof Error
+            ? error.message
+            : "Unknown error"
+          : "Unknown error",
+    };
   }
 }
 
 /**
  * Cancel current subscription
  */
-export async function cancelSubscriptionAction(cancelAtPeriodEnd: boolean = true) {
+export async function cancelSubscriptionAction(
+  cancelAtPeriodEnd: boolean = true
+) {
   try {
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session?.user?.id) {
@@ -109,55 +133,58 @@ export async function cancelSubscriptionAction(cancelAtPeriodEnd: boolean = true
     }
 
     const paymentService = new PaymentService();
-    const subscription = await paymentService.getUserSubscription(session.user.id);
-    
+    const subscription = await paymentService.getUserSubscription(
+      session.user.id
+    );
+
     if (!subscription) {
       throw new Error("No active subscription found");
     }
 
     // Check if subscription ID is invalid (e.g., checkout session ID)
-    if (!subscription.providerSubscriptionId.startsWith('sub_')) {
-      console.warn(`Invalid subscription ID detected: ${subscription.providerSubscriptionId}. Updating user plan directly.`);
-      
+    if (!subscription.providerSubscriptionId.startsWith("sub_")) {
+      console.warn(
+        `Invalid subscription ID detected: ${subscription.providerSubscriptionId}. Updating user plan directly.`
+      );
+
       // Import db and user directly
       const { db } = await import("@/db");
       const { user } = await import("@/db/schema");
       const { eq } = await import("drizzle-orm");
-      
+
       // Update user plan to free and reset credits
       await db
         .update(user)
         .set({
-          currentPlan: 'free',
+          currentPlan: "free",
           monthlyCredits: 0,
           creditsResetDate: null,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(user.id, session.user.id));
-      
+
       return {
         success: true,
-        message: "Subscription has been canceled and plan updated to free"
+        message: "Subscription has been canceled and plan updated to free",
       };
     }
 
     await paymentService.cancelSubscription(subscription.id, cancelAtPeriodEnd);
-    
+
     return {
       success: true,
-      message: cancelAtPeriodEnd 
-        ? "Subscription will be canceled at the end of the billing period" 
-        : "Subscription has been canceled immediately"
+      message: cancelAtPeriodEnd
+        ? "Subscription will be canceled at the end of the billing period"
+        : "Subscription has been canceled immediately",
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Failed to cancel subscription:", error);
     return {
       success: false,
-      message: error.message
+      message: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
-
 
 /**
  * Get current user subscription
@@ -171,7 +198,7 @@ export async function getCurrentSubscriptionAction() {
 
     const paymentService = new PaymentService();
     return await paymentService.getUserSubscription(session.user.id);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Failed to get subscription:", error);
     return null;
   }
@@ -185,7 +212,7 @@ function getTrialDays(plan: SubscriptionPlan): number {
     free: 0,
     starter: 0,
     pro: 0,
-    credits_pack: 0
+    credits_pack: 0,
   };
   return trialDays[plan] || 0;
 }

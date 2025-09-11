@@ -30,7 +30,7 @@ const GenerationsPage = async () => {
 
   return (
     <div className="container mx-auto py-8">
-      <GenerationHistoryView 
+      <GenerationHistoryView
         initialGenerations={result.generations || []}
         className="max-w-7xl mx-auto"
       />

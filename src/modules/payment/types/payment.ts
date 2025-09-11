@@ -1,21 +1,22 @@
-import { 
-  paymentProviderEnum, 
-  paymentStatusEnum, 
-  subscriptionPlanEnum, 
-  subscriptionStatusEnum 
+import {
+  paymentProviderEnum,
+  paymentStatusEnum,
+  subscriptionPlanEnum,
+  subscriptionStatusEnum,
 } from "@/db/schema";
 
 // Base types from database enums
-export type PaymentProvider = typeof paymentProviderEnum.enumValues[number];
-export type PaymentStatus = typeof paymentStatusEnum.enumValues[number];
-export type SubscriptionPlan = typeof subscriptionPlanEnum.enumValues[number];
-export type SubscriptionStatus = typeof subscriptionStatusEnum.enumValues[number];
+export type PaymentProvider = (typeof paymentProviderEnum.enumValues)[number];
+export type PaymentStatus = (typeof paymentStatusEnum.enumValues)[number];
+export type SubscriptionPlan = (typeof subscriptionPlanEnum.enumValues)[number];
+export type SubscriptionStatus =
+  (typeof subscriptionStatusEnum.enumValues)[number];
 
 // Subscription interfaces
 export interface CreateSubscriptionRequest {
   userId: string;
   plan: SubscriptionPlan;
-  interval: 'month' | 'year';
+  interval: "month" | "year";
   successUrl: string;
   cancelUrl: string;
   trialDays?: number;
@@ -31,7 +32,7 @@ export interface CreateSubscriptionResponse {
 export interface UpdateSubscriptionRequest {
   subscriptionId: string;
   plan?: SubscriptionPlan;
-  interval?: 'month' | 'year';
+  interval?: "month" | "year";
   cancelAtPeriodEnd?: boolean;
 }
 
@@ -47,7 +48,7 @@ export interface CreatePaymentRequest {
   amount: number; // in cents
   currency: string;
   description?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface CreatePaymentResponse {
@@ -60,7 +61,7 @@ export interface CreatePaymentResponse {
 export interface WebhookEvent {
   id: string;
   type: string;
-  data: any;
+  data: unknown;
   provider: PaymentProvider;
   created: number;
 }
@@ -82,7 +83,7 @@ export interface CreateCustomerRequest {
   userId: string;
   email: string;
   name?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface CreateCustomerResponse {
@@ -110,7 +111,7 @@ export interface ProviderSubscription {
   };
 }
 
-// Payment data from provider  
+// Payment data from provider
 export interface ProviderPayment {
   id: string;
   customerId?: string;
@@ -119,7 +120,7 @@ export interface ProviderPayment {
   amount: number;
   currency: string;
   description?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   failureCode?: string;
   failureMessage?: string;
   paidAt?: Date;
@@ -136,6 +137,6 @@ export interface PaymentProviderConfig {
   provider: PaymentProvider;
   apiKey: string;
   webhookSecret: string;
-  environment: 'test' | 'live';
-  config?: Record<string, any>;
+  environment: "test" | "live";
+  config?: Record<string, unknown>;
 }

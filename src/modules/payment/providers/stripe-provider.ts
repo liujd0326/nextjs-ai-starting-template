@@ -60,24 +60,30 @@ export class StripeProvider extends BasePaymentProvider {
         customerId: customer.id,
         provider: "stripe",
       };
-    } catch (error: any) {
-      throw new Error(`Stripe customer creation failed: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(
+        `Stripe customer creation failed: ${error instanceof Error ? (error instanceof Error ? error.message : "Unknown error") : "Unknown error"}`
+      );
     }
   }
 
   async getCustomer(customerId: string) {
     try {
       return await this.stripe.customers.retrieve(customerId);
-    } catch (error: any) {
-      throw new Error(`Failed to retrieve Stripe customer: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(
+        `Failed to retrieve Stripe customer: ${error instanceof Error ? (error instanceof Error ? error.message : "Unknown error") : "Unknown error"}`
+      );
     }
   }
 
-  async updateCustomer(customerId: string, data: any) {
+  async updateCustomer(customerId: string, data: Record<string, unknown>) {
     try {
       return await this.stripe.customers.update(customerId, data);
-    } catch (error: any) {
-      throw new Error(`Failed to update Stripe customer: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(
+        `Failed to update Stripe customer: ${error instanceof Error ? (error instanceof Error ? error.message : "Unknown error") : "Unknown error"}`
+      );
     }
   }
 
@@ -92,9 +98,11 @@ export class StripeProvider extends BasePaymentProvider {
       );
 
       // Create checkout session
-      console.log(`[DEBUG] Stripe Provider - Creating checkout session with trialDays: ${request.trialDays}`);
-      
-      const subscriptionData: any = {
+      console.log(
+        `[DEBUG] Stripe Provider - Creating checkout session with trialDays: ${request.trialDays}`
+      );
+
+      const subscriptionData: Record<string, unknown> = {
         metadata: {
           userId: request.userId,
           plan: request.plan,
@@ -107,9 +115,12 @@ export class StripeProvider extends BasePaymentProvider {
         subscriptionData.trial_period_days = request.trialDays;
         console.log(`[DEBUG] Adding trial_period_days: ${request.trialDays}`);
       }
-      
-      console.log('[DEBUG] Final subscription data for Stripe:', JSON.stringify(subscriptionData, null, 2));
-      
+
+      console.log(
+        "[DEBUG] Final subscription data for Stripe:",
+        JSON.stringify(subscriptionData, null, 2)
+      );
+
       const session = await this.stripe.checkout.sessions.create({
         customer: request.customerId,
         payment_method_types: ["card"],
@@ -135,8 +146,10 @@ export class StripeProvider extends BasePaymentProvider {
         checkoutUrl: session.url!,
         customerId: request.customerId,
       };
-    } catch (error: any) {
-      throw new Error(`Stripe subscription creation failed: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(
+        `Stripe subscription creation failed: ${error instanceof Error ? (error instanceof Error ? error.message : "Unknown error") : "Unknown error"}`
+      );
     }
   }
 
@@ -175,9 +188,9 @@ export class StripeProvider extends BasePaymentProvider {
           intervalCount: price?.recurring?.interval_count || 1,
         },
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       throw new Error(
-        `Failed to retrieve Stripe subscription: ${error.message}`
+        `Failed to retrieve Stripe subscription: ${error instanceof Error ? error.message : "Unknown error"}`
       );
     }
   }
@@ -215,8 +228,10 @@ export class StripeProvider extends BasePaymentProvider {
       );
 
       return this.convertToProviderSubscription(subscription);
-    } catch (error: any) {
-      throw new Error(`Failed to update Stripe subscription: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(
+        `Failed to update Stripe subscription: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
     }
   }
 
@@ -225,8 +240,10 @@ export class StripeProvider extends BasePaymentProvider {
   ): Promise<ProviderSubscription> {
     try {
       // Check if the ID is a valid subscription ID (should start with 'sub_')
-      if (!request.subscriptionId.startsWith('sub_')) {
-        throw new Error(`Invalid subscription ID format: ${request.subscriptionId}. Expected subscription ID to start with 'sub_'`);
+      if (!request.subscriptionId.startsWith("sub_")) {
+        throw new Error(
+          `Invalid subscription ID format: ${request.subscriptionId}. Expected subscription ID to start with 'sub_'`
+        );
       }
 
       let subscription;
@@ -245,12 +262,14 @@ export class StripeProvider extends BasePaymentProvider {
       }
 
       return this.convertToProviderSubscription(subscription);
-    } catch (error: any) {
-      console.error('Stripe subscription cancellation error:', {
+    } catch (error: unknown) {
+      console.error("Stripe subscription cancellation error:", {
         subscriptionId: request.subscriptionId,
-        error: error.message
+        error: error instanceof Error ? error.message : "Unknown error",
       });
-      throw new Error(`Failed to cancel Stripe subscription: ${error.message}`);
+      throw new Error(
+        `Failed to cancel Stripe subscription: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
     }
   }
 
@@ -266,8 +285,10 @@ export class StripeProvider extends BasePaymentProvider {
       );
 
       return this.convertToProviderSubscription(subscription);
-    } catch (error: any) {
-      throw new Error(`Failed to resume Stripe subscription: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(
+        `Failed to resume Stripe subscription: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
     }
   }
 
@@ -289,8 +310,10 @@ export class StripeProvider extends BasePaymentProvider {
         paymentId: paymentIntent.id,
         clientSecret: paymentIntent.client_secret!,
       };
-    } catch (error: any) {
-      throw new Error(`Stripe payment creation failed: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(
+        `Stripe payment creation failed: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
     }
   }
 
@@ -309,8 +332,10 @@ export class StripeProvider extends BasePaymentProvider {
         metadata: paymentIntent.metadata,
         createdAt: new Date(paymentIntent.created * 1000),
       };
-    } catch (error: any) {
-      throw new Error(`Failed to retrieve Stripe payment: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(
+        `Failed to retrieve Stripe payment: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
     }
   }
 
@@ -325,8 +350,10 @@ export class StripeProvider extends BasePaymentProvider {
       });
 
       return this.getPayment(paymentId);
-    } catch (error: any) {
-      throw new Error(`Failed to refund Stripe payment: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(
+        `Failed to refund Stripe payment: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
     }
   }
 
@@ -353,8 +380,10 @@ export class StripeProvider extends BasePaymentProvider {
         provider: "stripe",
         created: event.created,
       };
-    } catch (error: any) {
-      throw new Error(`Failed to parse Stripe webhook: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(
+        `Failed to parse Stripe webhook: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
     }
   }
 
@@ -391,13 +420,12 @@ export class StripeProvider extends BasePaymentProvider {
       }
 
       result.processed = true;
-    } catch (error: any) {
-      result.error = error.message;
+    } catch (error: unknown) {
+      result.error = error instanceof Error ? error.message : "Unknown error";
     }
 
     return result;
   }
-
 
   async createPrice(
     productId: string,
@@ -416,8 +444,10 @@ export class StripeProvider extends BasePaymentProvider {
       });
 
       return price.id;
-    } catch (error: any) {
-      throw new Error(`Failed to create Stripe price: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(
+        `Failed to create Stripe price: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
     }
   }
 
@@ -429,8 +459,10 @@ export class StripeProvider extends BasePaymentProvider {
       });
 
       return product.id;
-    } catch (error: any) {
-      throw new Error(`Failed to create Stripe product: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(
+        `Failed to create Stripe product: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
     }
   }
 
@@ -447,8 +479,10 @@ export class StripeProvider extends BasePaymentProvider {
       return {
         url: session.url,
       };
-    } catch (error: any) {
-      throw new Error(`Failed to create Stripe billing portal session: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(
+        `Failed to create Stripe billing portal session: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
     }
   }
 
@@ -458,21 +492,25 @@ export class StripeProvider extends BasePaymentProvider {
   ): Promise<string> {
     // Import siteConfig to get price IDs from environment variables
     const { siteConfig, getStripePriceId } = await import("@/config/site");
-    
+
     // Find the plan in siteConfig
-    const planConfig = Object.values(siteConfig.pricing).find(p => p.name.toLowerCase() === plan.toLowerCase());
-    
+    const planConfig = Object.values(siteConfig.pricing).find(
+      (p) => p.name.toLowerCase() === plan.toLowerCase()
+    );
+
     if (!planConfig) {
       throw new Error(`Plan not found: ${plan}`);
     }
-    
+
     // Get the appropriate price ID using our helper function
     const priceId = getStripePriceId(planConfig, interval === "year");
-    
+
     if (!priceId) {
-      throw new Error(`Price ID not found for plan: ${plan}, interval: ${interval}`);
+      throw new Error(
+        `Price ID not found for plan: ${plan}, interval: ${interval}`
+      );
     }
-    
+
     return priceId;
   }
 

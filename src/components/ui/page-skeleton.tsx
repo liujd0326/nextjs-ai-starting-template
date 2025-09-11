@@ -8,17 +8,17 @@ interface PageSkeletonProps {
   className?: string;
 }
 
-export const PageSkeleton = ({ 
-  showHeader = true, 
-  cardCount = 3, 
+export const PageSkeleton = ({
+  showHeader = true,
+  cardCount = 3,
   gridCols = 3,
-  className 
+  className,
 }: PageSkeletonProps) => {
   const gridClass = {
     1: "grid-cols-1",
-    2: "grid-cols-1 md:grid-cols-2", 
+    2: "grid-cols-1 md:grid-cols-2",
     3: "grid-cols-1 md:grid-cols-2 lg:grid-cols-3",
-    4: "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
+    4: "grid-cols-1 md:grid-cols-2 lg:grid-cols-4",
   };
 
   return (
@@ -29,7 +29,7 @@ export const PageSkeleton = ({
           <Skeleton className="h-5 w-64" />
         </div>
       )}
-      
+
       <div className={`grid gap-6 ${gridClass[gridCols]}`}>
         {[...Array(cardCount)].map((_, i) => (
           <CardSkeleton key={i} />
@@ -92,12 +92,12 @@ export const FormSkeleton = ({ fieldCount = 4 }: { fieldCount?: number }) => {
   );
 };
 
-export const TableSkeleton = ({ 
-  rowCount = 5, 
-  columnCount = 4 
-}: { 
-  rowCount?: number; 
-  columnCount?: number; 
+export const TableSkeleton = ({
+  rowCount = 5,
+  columnCount = 4,
+}: {
+  rowCount?: number;
+  columnCount?: number;
 }) => {
   return (
     <div className="space-y-3">
@@ -107,7 +107,7 @@ export const TableSkeleton = ({
           <Skeleton key={i} className="h-4 flex-1" />
         ))}
       </div>
-      
+
       {/* Table Rows */}
       {[...Array(rowCount)].map((_, i) => (
         <div key={i} className="flex gap-4 p-3">

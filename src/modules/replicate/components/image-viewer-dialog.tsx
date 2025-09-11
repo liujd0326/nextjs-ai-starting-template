@@ -1,16 +1,21 @@
 "use client";
 
-import { Download, X } from 'lucide-react';
-import Image from 'next/image';
-import { useState } from 'react';
+import { Download, X } from "lucide-react";
+import Image from "next/image";
+import { useState } from "react";
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 
-import { GenerationRecord } from '../actions/get-generations';
+import { GenerationRecord } from "../actions/get-generations";
 
 interface ImageViewerDialogProps {
   open: boolean;
@@ -18,23 +23,29 @@ interface ImageViewerDialogProps {
   generation: GenerationRecord | null;
 }
 
-export const ImageViewerDialog = ({ open, onOpenChange, generation }: ImageViewerDialogProps) => {
+export const ImageViewerDialog = ({
+  open,
+  onOpenChange,
+  generation,
+}: ImageViewerDialogProps) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   if (!generation) return null;
 
   // Parse output images
-  const outputImages: string[] = generation.outputImageUrls 
-    ? JSON.parse(generation.outputImageUrls) 
+  const outputImages: string[] = generation.outputImageUrls
+    ? JSON.parse(generation.outputImageUrls)
     : [];
-  
+
   // Parse parameters
-  const parameters = generation.parameters ? JSON.parse(generation.parameters) : {};
+  const parameters = generation.parameters
+    ? JSON.parse(generation.parameters)
+    : {};
 
   const downloadImage = (url: string, index: number) => {
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
-    link.download = `generation-${generation.id}-${index + 1}.${parameters.output_format || 'png'}`;
+    link.download = `generation-${generation.id}-${index + 1}.${parameters.output_format || "png"}`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -42,24 +53,24 @@ export const ImageViewerDialog = ({ open, onOpenChange, generation }: ImageViewe
 
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
-      case 'completed':
-        return 'default';
-      case 'failed':
-        return 'destructive';
-      case 'processing':
-        return 'secondary';
+      case "completed":
+        return "default";
+      case "failed":
+        return "destructive";
+      case "processing":
+        return "secondary";
       default:
-        return 'outline';
+        return "outline";
     }
   };
 
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     }).format(date);
   };
 
@@ -75,13 +86,19 @@ export const ImageViewerDialog = ({ open, onOpenChange, generation }: ImageViewe
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex flex-col lg:flex-row gap-6 overflow-hidden" style={{ maxHeight: 'calc(95vh - 120px)' }}>
+        <div
+          className="flex flex-col lg:flex-row gap-6 overflow-hidden"
+          style={{ maxHeight: "calc(95vh - 120px)" }}
+        >
           {/* Image Viewer */}
           <div className="flex-1 flex flex-col min-w-0">
             {outputImages.length > 0 ? (
               <>
                 {/* Main Image */}
-                <div className="relative bg-muted rounded-lg overflow-hidden" style={{ height: '500px' }}>
+                <div
+                  className="relative bg-muted rounded-lg overflow-hidden"
+                  style={{ height: "500px" }}
+                >
                   <Image
                     src={outputImages[selectedImageIndex]}
                     alt={`Generated image ${selectedImageIndex + 1}`}
@@ -93,7 +110,12 @@ export const ImageViewerDialog = ({ open, onOpenChange, generation }: ImageViewe
                     variant="secondary"
                     size="sm"
                     className="absolute top-4 right-4"
-                    onClick={() => downloadImage(outputImages[selectedImageIndex], selectedImageIndex)}
+                    onClick={() =>
+                      downloadImage(
+                        outputImages[selectedImageIndex],
+                        selectedImageIndex
+                      )
+                    }
                   >
                     <Download className="h-4 w-4 mr-2" />
                     Download
@@ -109,8 +131,8 @@ export const ImageViewerDialog = ({ open, onOpenChange, generation }: ImageViewe
                         onClick={() => setSelectedImageIndex(index)}
                         className={`relative w-16 h-16 rounded-md overflow-hidden border-2 transition-colors ${
                           selectedImageIndex === index
-                            ? 'border-primary'
-                            : 'border-transparent hover:border-muted-foreground'
+                            ? "border-primary"
+                            : "border-transparent hover:border-muted-foreground"
                         }`}
                       >
                         <Image
@@ -148,24 +170,36 @@ export const ImageViewerDialog = ({ open, onOpenChange, generation }: ImageViewe
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Type:</span>
-                      <span className="capitalize">{generation.type.replace('_', ' ')}</span>
+                      <span className="capitalize">
+                        {generation.type.replace("_", " ")}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Model:</span>
-                      <span className="text-right break-all text-xs">{generation.model}</span>
+                      <span className="text-right break-all text-xs">
+                        {generation.model}
+                      </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Credits Used:</span>
+                      <span className="text-muted-foreground">
+                        Credits Used:
+                      </span>
                       <span>{generation.creditsUsed}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Created:</span>
-                      <span className="text-right text-xs">{formatDate(generation.createdAt)}</span>
+                      <span className="text-right text-xs">
+                        {formatDate(generation.createdAt)}
+                      </span>
                     </div>
                     {generation.completedAt && (
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Completed:</span>
-                        <span className="text-right text-xs">{formatDate(generation.completedAt)}</span>
+                        <span className="text-muted-foreground">
+                          Completed:
+                        </span>
+                        <span className="text-right text-xs">
+                          {formatDate(generation.completedAt)}
+                        </span>
                       </div>
                     )}
                   </div>
@@ -211,7 +245,7 @@ export const ImageViewerDialog = ({ open, onOpenChange, generation }: ImageViewe
                         <span>{parameters.style}</span>
                       </div>
                     )}
-                    {parameters.persona && parameters.persona !== 'None' && (
+                    {parameters.persona && parameters.persona !== "None" && (
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Persona:</span>
                         <span>{parameters.persona}</span>
@@ -219,7 +253,9 @@ export const ImageViewerDialog = ({ open, onOpenChange, generation }: ImageViewe
                     )}
                     {parameters.aspect_ratio && (
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Aspect Ratio:</span>
+                        <span className="text-muted-foreground">
+                          Aspect Ratio:
+                        </span>
                         <span>{parameters.aspect_ratio}</span>
                       </div>
                     )}
@@ -232,18 +268,24 @@ export const ImageViewerDialog = ({ open, onOpenChange, generation }: ImageViewe
                     {parameters.output_format && (
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Format:</span>
-                        <span className="uppercase">{parameters.output_format}</span>
+                        <span className="uppercase">
+                          {parameters.output_format}
+                        </span>
                       </div>
                     )}
                     {parameters.preserve_outfit && (
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Preserve Outfit:</span>
+                        <span className="text-muted-foreground">
+                          Preserve Outfit:
+                        </span>
                         <span>Yes</span>
                       </div>
                     )}
                     {parameters.preserve_background && (
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Preserve Background:</span>
+                        <span className="text-muted-foreground">
+                          Preserve Background:
+                        </span>
                         <span>Yes</span>
                       </div>
                     )}
@@ -264,7 +306,10 @@ export const ImageViewerDialog = ({ open, onOpenChange, generation }: ImageViewe
                       className="w-full"
                       onClick={() => {
                         outputImages.forEach((url, index) => {
-                          setTimeout(() => downloadImage(url, index), index * 100);
+                          setTimeout(
+                            () => downloadImage(url, index),
+                            index * 100
+                          );
                         });
                       }}
                     >

@@ -97,12 +97,14 @@ export const siteConfig: SiteConfig = {
       buttonText: "Subscribe Now",
       note: "Cancel anytime",
       stripePriceIds: {
-        monthly: process.env.NODE_ENV === 'production' 
-          ? process.env.STRIPE_PRICE_STARTER_MONTHLY
-          : process.env.STRIPE_PRICE_STARTER_MONTHLY_TEST,
-        yearly: process.env.NODE_ENV === 'production'
-          ? process.env.STRIPE_PRICE_STARTER_YEARLY
-          : process.env.STRIPE_PRICE_STARTER_YEARLY_TEST,
+        monthly:
+          process.env.NODE_ENV === "production"
+            ? process.env.STRIPE_PRICE_STARTER_MONTHLY
+            : process.env.STRIPE_PRICE_STARTER_MONTHLY_TEST,
+        yearly:
+          process.env.NODE_ENV === "production"
+            ? process.env.STRIPE_PRICE_STARTER_YEARLY
+            : process.env.STRIPE_PRICE_STARTER_YEARLY_TEST,
       },
     },
 
@@ -127,12 +129,14 @@ export const siteConfig: SiteConfig = {
       buttonText: "Subscribe Now",
       note: "Cancel anytime",
       stripePriceIds: {
-        monthly: process.env.NODE_ENV === 'production'
-          ? process.env.STRIPE_PRICE_PRO_MONTHLY
-          : process.env.STRIPE_PRICE_PRO_MONTHLY_TEST,
-        yearly: process.env.NODE_ENV === 'production'
-          ? process.env.STRIPE_PRICE_PRO_YEARLY
-          : process.env.STRIPE_PRICE_PRO_YEARLY_TEST,
+        monthly:
+          process.env.NODE_ENV === "production"
+            ? process.env.STRIPE_PRICE_PRO_MONTHLY
+            : process.env.STRIPE_PRICE_PRO_MONTHLY_TEST,
+        yearly:
+          process.env.NODE_ENV === "production"
+            ? process.env.STRIPE_PRICE_PRO_YEARLY
+            : process.env.STRIPE_PRICE_PRO_YEARLY_TEST,
       },
     },
 
@@ -156,9 +160,10 @@ export const siteConfig: SiteConfig = {
       buttonText: "Buy Credits",
       note: "One-time purchase, credits never expire",
       stripePriceIds: {
-        oneTime: process.env.NODE_ENV === 'production'
-          ? process.env.STRIPE_PRICE_CREDITS_PACK
-          : process.env.STRIPE_PRICE_CREDITS_PACK_TEST,
+        oneTime:
+          process.env.NODE_ENV === "production"
+            ? process.env.STRIPE_PRICE_CREDITS_PACK
+            : process.env.STRIPE_PRICE_CREDITS_PACK_TEST,
       },
     },
   },
@@ -201,26 +206,26 @@ export const getPricingPlans = () => {
 };
 
 export const getSubscriptionPlans = () => {
-  return [
-    siteConfig.pricing.starter,
-    siteConfig.pricing.pro,
-  ];
+  return [siteConfig.pricing.starter, siteConfig.pricing.pro];
 };
 
 export const getPopularPlan = () => {
   return Object.values(siteConfig.pricing).find((plan) => plan.popular);
 };
 
-export const getStripePriceId = (plan: PricingPlan, isYearly: boolean): string | undefined => {
+export const getStripePriceId = (
+  plan: PricingPlan,
+  isYearly: boolean
+): string | undefined => {
   if (!plan.stripePriceIds) return undefined;
-  
+
   if (!plan.isSubscription) {
     return plan.stripePriceIds.oneTime;
   }
-  
+
   if (!plan.hasYearlyOption || !isYearly) {
     return plan.stripePriceIds.monthly;
   }
-  
+
   return plan.stripePriceIds.yearly;
 };

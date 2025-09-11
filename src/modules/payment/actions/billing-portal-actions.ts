@@ -1,11 +1,11 @@
 "use server";
 
+import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
+
 import { db } from "@/db";
 import { subscriptions } from "@/db/schema";
-import { eq } from "drizzle-orm";
-import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
 
 import { PaymentService } from "../services/payment-service";
 
@@ -13,7 +13,9 @@ import { PaymentService } from "../services/payment-service";
  * Creates a billing portal session for the current user
  * Returns the billing portal URL
  */
-export const createBillingPortalSessionAction = async (): Promise<{ url: string }> => {
+export const createBillingPortalSessionAction = async (): Promise<{
+  url: string;
+}> => {
   try {
     // Check authentication
     const session = await auth.api.getSession({ headers: await headers() });
@@ -31,7 +33,9 @@ export const createBillingPortalSessionAction = async (): Promise<{ url: string 
       .limit(1);
 
     if (!subscription.length || !subscription[0].providerCustomerId) {
-      throw new Error("You need an active subscription to access billing management. Please upgrade your plan first.");
+      throw new Error(
+        "You need an active subscription to access billing management. Please upgrade your plan first."
+      );
     }
 
     const customerId = subscription[0].providerCustomerId;
@@ -39,10 +43,8 @@ export const createBillingPortalSessionAction = async (): Promise<{ url: string 
 
     // Create billing portal session
     const paymentService = new PaymentService();
-    const billingPortalResponse = await paymentService.createBillingPortalSession(
-      customerId,
-      returnUrl
-    );
+    const billingPortalResponse =
+      await paymentService.createBillingPortalSession(customerId, returnUrl);
 
     // Return the billing portal URL
     return { url: billingPortalResponse.url };

@@ -31,7 +31,10 @@ export default function DashboardLoading() {
               <Skeleton className="h-4 w-20 mx-auto" />
             </div>
             {[...Array(2)].map((_, i) => (
-              <div key={i} className="text-center p-4 bg-gray-50 rounded-xl border border-gray-200">
+              <div
+                key={i}
+                className="text-center p-4 bg-gray-50 rounded-xl border border-gray-200"
+              >
                 <Skeleton className="h-6 w-14 mx-auto mb-2" />
                 <Skeleton className="h-4 w-16 mx-auto" />
               </div>
@@ -50,7 +53,7 @@ export default function DashboardLoading() {
           <Skeleton className="h-8 md:h-9 w-2/3 md:w-64 lg:w-80 mx-auto mb-3" />
           <Skeleton className="h-5 md:h-6 w-3/4 md:w-96 lg:w-[500px] mx-auto" />
         </div>
-        
+
         <Card className="border-0 shadow-lg max-w-4xl mx-auto">
           <CardHeader className="text-center pb-12 px-6 md:px-12">
             <Skeleton className="w-20 h-20 rounded-full mx-auto mb-8" />
@@ -69,7 +72,7 @@ export default function DashboardLoading() {
           <Skeleton className="h-6 md:h-8 w-2/5 md:w-48 lg:w-56 mx-auto mb-2" />
           <Skeleton className="h-4 md:h-5 w-3/4 md:w-80 lg:w-96 mx-auto" />
         </div>
-        
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-12 max-w-6xl mx-auto">
           {[...Array(4)].map((_, i) => (
             <Card key={i} className="border-0 shadow-md">

@@ -7,7 +7,10 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { cn } from "@/lib/utils";
 
 // Simple in-memory cache for image loading status
-const imageCache = new Map<string, { status: 'loading' | 'loaded' | 'error'; timestamp: number }>();
+const imageCache = new Map<
+  string,
+  { status: "loading" | "loaded" | "error"; timestamp: number }
+>();
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 const getCachedImageStatus = (src: string) => {
@@ -18,7 +21,10 @@ const getCachedImageStatus = (src: string) => {
   return null;
 };
 
-const setCachedImageStatus = (src: string, status: 'loading' | 'loaded' | 'error') => {
+const setCachedImageStatus = (
+  src: string,
+  status: "loading" | "loaded" | "error"
+) => {
   imageCache.set(src, { status, timestamp: Date.now() });
 };
 
@@ -40,18 +46,18 @@ export const AvatarWithLoading = ({
   const [isImageLoading, setIsImageLoading] = useState(() => {
     if (!src) return false;
     const cachedStatus = getCachedImageStatus(src);
-    return cachedStatus === 'loading' || cachedStatus === null;
+    return cachedStatus === "loading" || cachedStatus === null;
   });
   const [imageError, setImageError] = useState(() => {
     if (!src) return false;
     const cachedStatus = getCachedImageStatus(src);
-    return cachedStatus === 'error';
+    return cachedStatus === "error";
   });
 
   const handleImageLoad = () => {
     setIsImageLoading(false);
     if (src) {
-      setCachedImageStatus(src, 'loaded');
+      setCachedImageStatus(src, "loaded");
     }
   };
 
@@ -59,7 +65,7 @@ export const AvatarWithLoading = ({
     setIsImageLoading(false);
     setImageError(true);
     if (src) {
-      setCachedImageStatus(src, 'error');
+      setCachedImageStatus(src, "error");
     }
   };
 
@@ -67,16 +73,16 @@ export const AvatarWithLoading = ({
   useEffect(() => {
     if (src) {
       const cachedStatus = getCachedImageStatus(src);
-      if (cachedStatus === 'loaded') {
+      if (cachedStatus === "loaded") {
         setIsImageLoading(false);
         setImageError(false);
-      } else if (cachedStatus === 'error') {
+      } else if (cachedStatus === "error") {
         setIsImageLoading(false);
         setImageError(true);
       } else {
         setIsImageLoading(true);
         setImageError(false);
-        setCachedImageStatus(src, 'loading');
+        setCachedImageStatus(src, "loading");
       }
     } else {
       setIsImageLoading(false);
@@ -90,7 +96,7 @@ export const AvatarWithLoading = ({
       const timeout = setTimeout(() => {
         setIsImageLoading(false);
         setImageError(true);
-        setCachedImageStatus(src, 'error');
+        setCachedImageStatus(src, "error");
       }, 3000); // 3 seconds timeout
 
       return () => clearTimeout(timeout);

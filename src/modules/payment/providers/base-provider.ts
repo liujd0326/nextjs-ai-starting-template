@@ -13,7 +13,8 @@ import {
   ProviderPayment,
   ProviderSubscription,
   UpdateSubscriptionRequest,
-  WebhookEvent} from "../types/payment";
+  WebhookEvent,
+} from "../types/payment";
 
 /**
  * Abstract base class for payment providers
@@ -21,7 +22,7 @@ import {
  */
 export abstract class BasePaymentProvider {
   protected config: PaymentProviderConfig;
-  
+
   constructor(config: PaymentProviderConfig) {
     this.config = config;
   }
@@ -31,33 +32,62 @@ export abstract class BasePaymentProvider {
   abstract get isConfigured(): boolean;
 
   // Customer management
-  abstract createCustomer(request: CreateCustomerRequest): Promise<CreateCustomerResponse>;
-  abstract getCustomer(customerId: string): Promise<any>;
-  abstract updateCustomer(customerId: string, data: any): Promise<any>;
+  abstract createCustomer(
+    request: CreateCustomerRequest
+  ): Promise<CreateCustomerResponse>;
+  abstract getCustomer(customerId: string): Promise<Record<string, unknown>>;
+  abstract updateCustomer(
+    customerId: string,
+    data: Record<string, unknown>
+  ): Promise<Record<string, unknown>>;
 
   // Subscription management
-  abstract createSubscription(request: CreateSubscriptionRequest): Promise<CreateSubscriptionResponse>;
-  abstract getSubscription(subscriptionId: string): Promise<ProviderSubscription>;
-  abstract updateSubscription(request: UpdateSubscriptionRequest): Promise<ProviderSubscription>;
-  abstract cancelSubscription(request: CancelSubscriptionRequest): Promise<ProviderSubscription>;
-  abstract resumeSubscription(subscriptionId: string): Promise<ProviderSubscription>;
+  abstract createSubscription(
+    request: CreateSubscriptionRequest
+  ): Promise<CreateSubscriptionResponse>;
+  abstract getSubscription(
+    subscriptionId: string
+  ): Promise<ProviderSubscription>;
+  abstract updateSubscription(
+    request: UpdateSubscriptionRequest
+  ): Promise<ProviderSubscription>;
+  abstract cancelSubscription(
+    request: CancelSubscriptionRequest
+  ): Promise<ProviderSubscription>;
+  abstract resumeSubscription(
+    subscriptionId: string
+  ): Promise<ProviderSubscription>;
 
   // Payment processing
-  abstract createPayment(request: CreatePaymentRequest): Promise<CreatePaymentResponse>;
+  abstract createPayment(
+    request: CreatePaymentRequest
+  ): Promise<CreatePaymentResponse>;
   abstract getPayment(paymentId: string): Promise<ProviderPayment>;
-  abstract refundPayment(paymentId: string, amount?: number): Promise<ProviderPayment>;
+  abstract refundPayment(
+    paymentId: string,
+    amount?: number
+  ): Promise<ProviderPayment>;
 
   // Webhook handling
   abstract verifyWebhook(body: string, signature: string): boolean;
   abstract parseWebhookEvent(body: string): WebhookEvent;
-  abstract processWebhookEvent(event: WebhookEvent): Promise<ProcessedWebhookEvent>;
+  abstract processWebhookEvent(
+    event: WebhookEvent
+  ): Promise<ProcessedWebhookEvent>;
 
   // Billing portal
-  abstract createBillingPortalSession(customerId: string, returnUrl: string): Promise<CreateBillingPortalResponse>;
-
+  abstract createBillingPortalSession(
+    customerId: string,
+    returnUrl: string
+  ): Promise<CreateBillingPortalResponse>;
 
   // Price/product management
-  abstract createPrice(productId: string, amount: number, currency: string, interval: 'month' | 'year'): Promise<string>;
+  abstract createPrice(
+    productId: string,
+    amount: number,
+    currency: string,
+    interval: "month" | "year"
+  ): Promise<string>;
   abstract createProduct(name: string, description?: string): Promise<string>;
 
   // Utility methods

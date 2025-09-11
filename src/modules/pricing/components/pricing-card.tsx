@@ -1,7 +1,14 @@
 import { Check } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { PricingPlan } from "@/config/site";
 
 import { UserPlanInfo } from "../actions/get-user-plan";
@@ -14,17 +21,27 @@ interface PricingCardProps {
   className?: string;
 }
 
-export const PricingCard = ({ plan, isYearly, userPlanInfo, className = "" }: PricingCardProps) => {
+export const PricingCard = ({
+  plan,
+  isYearly,
+  userPlanInfo,
+  className = "",
+}: PricingCardProps) => {
   // 对于没有包年选项的计划，强制使用月付价格
   const effectiveIsYearly = plan.hasYearlyOption ? isYearly : false;
   const currentPrice = effectiveIsYearly ? plan.yearlyPrice : plan.monthlyPrice;
-  const monthlyPrice = effectiveIsYearly ? plan.yearlyPrice / 12 : plan.monthlyPrice;
-  const discountPercentage = effectiveIsYearly && plan.monthlyPrice > 0 && plan.hasYearlyOption
-    ? Math.round((1 - (plan.yearlyPrice / 12) / plan.monthlyPrice) * 100) 
-    : 0;
+  const monthlyPrice = effectiveIsYearly
+    ? plan.yearlyPrice / 12
+    : plan.monthlyPrice;
+  const discountPercentage =
+    effectiveIsYearly && plan.monthlyPrice > 0 && plan.hasYearlyOption
+      ? Math.round((1 - plan.yearlyPrice / 12 / plan.monthlyPrice) * 100)
+      : 0;
 
   return (
-    <Card className={`relative flex flex-col h-full min-h-[500px] sm:min-h-[550px] ${plan.popular ? 'ring-2 ring-primary' : ''} ${className}`}>
+    <Card
+      className={`relative flex flex-col h-full min-h-[500px] sm:min-h-[550px] ${plan.popular ? "ring-2 ring-primary" : ""} ${className}`}
+    >
       {/* 标签 */}
       <div className="absolute -top-3 left-3 sm:left-4 flex flex-wrap gap-1 sm:gap-2 max-w-[calc(100%-1.5rem)]">
         {plan.free && (
@@ -45,7 +62,9 @@ export const PricingCard = ({ plan, isYearly, userPlanInfo, className = "" }: Pr
       </div>
 
       <CardHeader className="pb-4 pt-6 px-4 sm:px-6">
-        <CardTitle className="text-lg sm:text-xl font-bold">{plan.name}</CardTitle>
+        <CardTitle className="text-lg sm:text-xl font-bold">
+          {plan.name}
+        </CardTitle>
         <CardDescription className="text-sm text-muted-foreground leading-relaxed">
           {plan.description}
         </CardDescription>
@@ -65,9 +84,13 @@ export const PricingCard = ({ plan, isYearly, userPlanInfo, className = "" }: Pr
                   ${monthlyPrice.toFixed(2)}
                 </span>
                 {plan.isSubscription ? (
-                  <span className="text-sm text-muted-foreground ml-1">/month</span>
+                  <span className="text-sm text-muted-foreground ml-1">
+                    /month
+                  </span>
                 ) : (
-                  <span className="text-sm text-muted-foreground ml-1">one-time</span>
+                  <span className="text-sm text-muted-foreground ml-1">
+                    one-time
+                  </span>
                 )}
               </div>
               {effectiveIsYearly && plan.hasYearlyOption && (
@@ -94,23 +117,25 @@ export const PricingCard = ({ plan, isYearly, userPlanInfo, className = "" }: Pr
           {plan.features.map((feature, index) => (
             <li key={index} className="flex items-start gap-3">
               <Check className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 flex-shrink-0 mt-1 sm:mt-0.5" />
-              <span className="text-sm text-muted-foreground leading-relaxed">{feature}</span>
+              <span className="text-sm text-muted-foreground leading-relaxed">
+                {feature}
+              </span>
             </li>
           ))}
         </ul>
       </CardContent>
 
       <CardFooter className="flex flex-col gap-3 px-4 sm:px-6 pb-6">
-        <PricingCardActions 
-          plan={plan} 
+        <PricingCardActions
+          plan={plan}
           isYearly={effectiveIsYearly}
           userPlanInfo={userPlanInfo}
           className={`w-full h-11 text-sm font-medium ${
             plan.popular
               ? "bg-primary text-primary-foreground hover:bg-primary/90"
               : plan.free
-              ? "bg-green-600 text-white hover:bg-green-700"
-              : "bg-white text-gray-900 border-2 border-gray-200 hover:bg-gray-50"
+                ? "bg-green-600 text-white hover:bg-green-700"
+                : "bg-white text-gray-900 border-2 border-gray-200 hover:bg-gray-50"
           }`}
           variant={plan.popular ? "default" : plan.free ? "default" : "outline"}
         />

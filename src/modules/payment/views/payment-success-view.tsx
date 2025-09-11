@@ -23,8 +23,8 @@ export const PaymentSuccessView = ({ user }: PaymentSuccessViewProps) => {
   const [plan, setPlan] = useState<string | null>(null);
 
   useEffect(() => {
-    setSessionId(searchParams.get('session_id'));
-    setPlan(searchParams.get('plan'));
+    setSessionId(searchParams.get("session_id"));
+    setPlan(searchParams.get("plan"));
   }, [searchParams]);
 
   const getPlanDetails = (planName: string | null) => {
@@ -36,18 +36,18 @@ export const PaymentSuccessView = ({ user }: PaymentSuccessViewProps) => {
           "100 AI generations per month",
           "High-quality image generation",
           "Multiple AI models",
-          "Priority support"
-        ]
+          "Priority support",
+        ],
       },
       pro: {
-        name: "Pro", 
+        name: "Pro",
         credits: "500",
         features: [
           "500 AI generations per month",
           "Premium AI models access",
           "Advanced customization",
-          "Priority processing"
-        ]
+          "Priority processing",
+        ],
       },
       credits_pack: {
         name: "Credits Pack",
@@ -56,9 +56,9 @@ export const PaymentSuccessView = ({ user }: PaymentSuccessViewProps) => {
           "1000 AI generations",
           "All premium models access",
           "Priority processing",
-          "Credits never expire"
-        ]
-      }
+          "Credits never expire",
+        ],
+      },
     };
 
     return plans[planName as keyof typeof plans] || plans.starter;
@@ -84,15 +84,15 @@ export const PaymentSuccessView = ({ user }: PaymentSuccessViewProps) => {
             >
               <CheckCircle className="w-16 h-16 text-green-600" />
             </MotionDiv>
-            
+
             <CardTitle className="text-3xl font-bold text-gray-900 mb-2">
               Payment Successful!
             </CardTitle>
-            
+
             <p className="text-gray-600 text-lg">
               Welcome to the {planDetails.name} plan, {user.name}!
             </p>
-            
+
             {sessionId && (
               <p className="text-sm text-gray-500 mt-2">
                 Session ID: {sessionId}
@@ -112,7 +112,7 @@ export const PaymentSuccessView = ({ user }: PaymentSuccessViewProps) => {
                 <CreditCard className="w-5 h-5 mr-2" />
                 Your {planDetails.name} Plan
               </h3>
-              
+
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <p className="text-sm text-gray-600 mb-2">Monthly Credits</p>
@@ -120,12 +120,15 @@ export const PaymentSuccessView = ({ user }: PaymentSuccessViewProps) => {
                     {planDetails.credits}
                   </p>
                 </div>
-                
+
                 <div>
                   <p className="text-sm text-gray-600 mb-2">Features</p>
                   <ul className="space-y-1">
                     {planDetails.features.slice(0, 3).map((feature, index) => (
-                      <li key={index} className="text-sm text-gray-700 flex items-start">
+                      <li
+                        key={index}
+                        className="text-sm text-gray-700 flex items-start"
+                      >
                         <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
                         {feature}
                       </li>
@@ -145,35 +148,44 @@ export const PaymentSuccessView = ({ user }: PaymentSuccessViewProps) => {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 What&apos;s Next?
               </h3>
-              
+
               <div className="space-y-3">
                 <div className="flex items-start">
                   <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-3 mt-0.5">
-                    <span className="text-sm font-semibold text-blue-600">1</span>
+                    <span className="text-sm font-semibold text-blue-600">
+                      1
+                    </span>
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">Start Creating</p>
                     <p className="text-sm text-gray-600">
-                      Go to your dashboard and start generating amazing AI content
+                      Go to your dashboard and start generating amazing AI
+                      content
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start">
                   <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-3 mt-0.5">
-                    <span className="text-sm font-semibold text-blue-600">2</span>
+                    <span className="text-sm font-semibold text-blue-600">
+                      2
+                    </span>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">Manage Subscription</p>
+                    <p className="font-medium text-gray-900">
+                      Manage Subscription
+                    </p>
                     <p className="text-sm text-gray-600">
                       Access billing portal to manage your subscription anytime
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start">
                   <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-3 mt-0.5">
-                    <span className="text-sm font-semibold text-blue-600">3</span>
+                    <span className="text-sm font-semibold text-blue-600">
+                      3
+                    </span>
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">Get Support</p>
@@ -198,11 +210,9 @@ export const PaymentSuccessView = ({ user }: PaymentSuccessViewProps) => {
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>
               </Button>
-              
+
               <Button asChild variant="outline" className="flex-1" size="lg">
-                <Link href="/subscription">
-                  Manage Subscription
-                </Link>
+                <Link href="/subscription">Manage Subscription</Link>
               </Button>
             </MotionDiv>
 

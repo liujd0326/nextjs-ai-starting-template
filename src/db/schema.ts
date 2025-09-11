@@ -1,28 +1,53 @@
-import { boolean, integer, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  integer,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+} from "drizzle-orm/pg-core";
 
 // Enums for subscription system
-export const subscriptionStatusEnum = pgEnum('subscription_status', [
-  'active', 'canceled', 'past_due', 'unpaid', 'trialing', 'paused'
+export const subscriptionStatusEnum = pgEnum("subscription_status", [
+  "active",
+  "canceled",
+  "past_due",
+  "unpaid",
+  "trialing",
+  "paused",
 ]);
 
-export const paymentProviderEnum = pgEnum('payment_provider', [
-  'stripe', 'creem', 'paypal'
+export const paymentProviderEnum = pgEnum("payment_provider", [
+  "stripe",
+  "creem",
+  "paypal",
 ]);
 
-export const paymentStatusEnum = pgEnum('payment_status', [
-  'pending', 'succeeded', 'failed', 'canceled', 'refunded'
+export const paymentStatusEnum = pgEnum("payment_status", [
+  "pending",
+  "succeeded",
+  "failed",
+  "canceled",
+  "refunded",
 ]);
 
-export const subscriptionPlanEnum = pgEnum('subscription_plan', [
-  'free', 'starter', 'pro', 'credits_pack'
+export const subscriptionPlanEnum = pgEnum("subscription_plan", [
+  "free",
+  "starter",
+  "pro",
+  "credits_pack",
 ]);
 
-export const generationStatusEnum = pgEnum('generation_status', [
-  'pending', 'processing', 'completed', 'failed'
+export const generationStatusEnum = pgEnum("generation_status", [
+  "pending",
+  "processing",
+  "completed",
+  "failed",
 ]);
 
-export const generationTypeEnum = pgEnum('generation_type', [
-  'text_to_image', 'image_to_image'
+export const generationTypeEnum = pgEnum("generation_type", [
+  "text_to_image",
+  "image_to_image",
 ]);
 
 export const user = pgTable("user", {
@@ -34,12 +59,9 @@ export const user = pgTable("user", {
     .notNull(),
   image: text("image"),
   // Subscription fields
-  currentPlan: subscriptionPlanEnum("current_plan")
-    .$defaultFn(() => 'free'),
-  monthlyCredits: integer("monthly_credits")
-    .$defaultFn(() => 0),
-  purchasedCredits: integer("purchased_credits")
-    .$defaultFn(() => 10),
+  currentPlan: subscriptionPlanEnum("current_plan").$defaultFn(() => "free"),
+  monthlyCredits: integer("monthly_credits").$defaultFn(() => 0),
+  purchasedCredits: integer("purchased_credits").$defaultFn(() => 10),
   creditsResetDate: timestamp("credits_reset_date"),
   trialEndsAt: timestamp("trial_ends_at"),
   createdAt: timestamp("created_at")
@@ -135,8 +157,9 @@ export const payments = pgTable("payments", {
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  subscriptionId: text("subscription_id")
-    .references(() => subscriptions.id, { onDelete: "set null" }),
+  subscriptionId: text("subscription_id").references(() => subscriptions.id, {
+    onDelete: "set null",
+  }),
   // Payment provider fields
   provider: paymentProviderEnum("provider").notNull(),
   providerPaymentId: text("provider_payment_id").notNull(),
@@ -214,7 +237,7 @@ export const aiGenerations = pgTable("ai_generations", {
   // Generation details
   type: generationTypeEnum("type").notNull(),
   status: generationStatusEnum("status")
-    .$defaultFn(() => 'pending')
+    .$defaultFn(() => "pending")
     .notNull(),
   // Input data
   inputImageUrl: text("input_image_url"), // for image_to_image

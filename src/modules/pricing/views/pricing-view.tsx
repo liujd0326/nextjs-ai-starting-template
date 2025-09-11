@@ -16,7 +16,8 @@ interface PricingViewProps {
 
 export const PricingView = ({ userPlanInfo }: PricingViewProps) => {
   const [isYearly, setIsYearly] = useState(false);
-  const isYearlyPricingEnabled = process.env.NEXT_PUBLIC_ENABLE_YEARLY_PRICING === 'true';
+  const isYearlyPricingEnabled =
+    process.env.NEXT_PUBLIC_ENABLE_YEARLY_PRICING === "true";
 
   const plans = Object.values(siteConfig.pricing);
 
@@ -24,22 +25,26 @@ export const PricingView = ({ userPlanInfo }: PricingViewProps) => {
     {
       icon: Zap,
       title: "Advanced AI Models",
-      description: "State-of-the-art text-to-image and image-to-image generation with multiple AI models",
+      description:
+        "State-of-the-art text-to-image and image-to-image generation with multiple AI models",
     },
     {
       icon: Globe,
-      title: "Lightning Fast Processing", 
-      description: "Generate high-quality images in seconds with our optimized global infrastructure",
+      title: "Lightning Fast Processing",
+      description:
+        "Generate high-quality images in seconds with our optimized global infrastructure",
     },
     {
       icon: Shield,
       title: "Commercial License",
-      description: "Full commercial usage rights for all generated content with enterprise-grade security",
+      description:
+        "Full commercial usage rights for all generated content with enterprise-grade security",
     },
     {
       icon: TrendingUp,
       title: "99.9% Uptime SLA",
-      description: "Reliable AI generation service with guaranteed availability and 24/7 support",
+      description:
+        "Reliable AI generation service with guaranteed availability and 24/7 support",
     },
   ];
 
@@ -119,7 +124,9 @@ export const PricingView = ({ userPlanInfo }: PricingViewProps) => {
                 <h3 className="font-bold text-gray-900 mb-3 text-base sm:text-lg">
                   {feature.title}
                 </h3>
-                <p className="text-sm text-gray-600 leading-relaxed">{feature.description}</p>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  {feature.description}
+                </p>
               </MotionDiv>
             ))}
           </div>

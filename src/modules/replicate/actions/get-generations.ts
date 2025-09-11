@@ -85,7 +85,9 @@ export async function getGenerations(
   }
 }
 
-export async function getGenerationById(id: string): Promise<GetGenerationsResult> {
+export async function getGenerationById(
+  id: string
+): Promise<GetGenerationsResult> {
   try {
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session?.user?.id) {
@@ -118,7 +120,10 @@ export async function getGenerationById(id: string): Promise<GetGenerationsResul
     }
 
     // Check if the generation belongs to the current user
-    if (generation.type === 'image_to_image' || generation.type === 'text_to_image') {
+    if (
+      generation.type === "image_to_image" ||
+      generation.type === "text_to_image"
+    ) {
       const [userCheck] = await db
         .select({ userId: aiGenerations.userId })
         .from(aiGenerations)

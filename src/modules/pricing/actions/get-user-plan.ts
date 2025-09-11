@@ -9,14 +9,14 @@ import { auth } from "@/lib/auth";
 
 export interface UserPlanInfo {
   isAuthenticated: boolean;
-  currentPlan: 'free' | 'starter' | 'pro' | 'credits_pack' | null;
+  currentPlan: "free" | "starter" | "pro" | "credits_pack" | null;
   userId?: string;
 }
 
 export const getUserPlanAction = async (): Promise<UserPlanInfo> => {
   try {
     const session = await auth.api.getSession({ headers: await headers() });
-    
+
     if (!session?.user?.id) {
       return {
         isAuthenticated: false,

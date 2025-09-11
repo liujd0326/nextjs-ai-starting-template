@@ -1,12 +1,9 @@
 import {
-  Activity,
   Clock,
   CreditCard,
   History,
-  ImageIcon,
   Palette,
   Plus,
-  Sparkles,
   TrendingUp,
   Zap,
 } from "lucide-react";
@@ -58,8 +55,8 @@ export const DashboardView = ({ user }: DashboardViewProps) => {
               Welcome back, {user.name || "User"}! 👋
             </h1>
             <p className="text-sm md:text-base lg:text-lg text-emerald-100">
-              Ready to transform your images with AI? Let's create something
-              amazing together.
+              Ready to transform your images with AI? Let&apos;s create
+              something amazing together.
             </p>
           </div>
         </div>

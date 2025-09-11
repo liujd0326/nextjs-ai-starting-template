@@ -29,10 +29,16 @@ export function useIsTablet() {
   React.useEffect(() => {
     const mql = window.matchMedia(`(max-width: ${TABLET_BREAKPOINT - 1}px)`);
     const onChange = () => {
-      setIsTablet(window.innerWidth >= MOBILE_BREAKPOINT && window.innerWidth < TABLET_BREAKPOINT);
+      setIsTablet(
+        window.innerWidth >= MOBILE_BREAKPOINT &&
+          window.innerWidth < TABLET_BREAKPOINT
+      );
     };
     mql.addEventListener("change", onChange);
-    setIsTablet(window.innerWidth >= MOBILE_BREAKPOINT && window.innerWidth < TABLET_BREAKPOINT);
+    setIsTablet(
+      window.innerWidth >= MOBILE_BREAKPOINT &&
+        window.innerWidth < TABLET_BREAKPOINT
+    );
     return () => mql.removeEventListener("change", onChange);
   }, []);
 

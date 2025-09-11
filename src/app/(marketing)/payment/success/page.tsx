@@ -76,22 +76,22 @@ const PaymentSuccessPage = async ({
               <div className="flex items-center justify-center gap-3 mb-4">
                 <MotionDiv
                   initial={{ scale: 0, rotate: -180 }}
-                  animate={{ 
-                    scale: 1, 
+                  animate={{
+                    scale: 1,
                     rotate: 0,
-                    y: [0, -8, 0]
+                    y: [0, -8, 0],
                   }}
-                  transition={{ 
-                    delay: 0.6, 
-                    duration: 0.8, 
-                    type: "spring", 
+                  transition={{
+                    delay: 0.6,
+                    duration: 0.8,
+                    type: "spring",
                     bounce: 0.6,
                     y: {
                       duration: 2,
                       repeat: Infinity,
                       repeatType: "reverse",
-                      ease: "easeInOut"
-                    }
+                      ease: "easeInOut",
+                    },
                   }}
                   className="text-4xl"
                 >
@@ -102,23 +102,23 @@ const PaymentSuccessPage = async ({
                 </h1>
                 <MotionDiv
                   initial={{ scale: 0, rotate: 180 }}
-                  animate={{ 
-                    scale: 1, 
+                  animate={{
+                    scale: 1,
                     rotate: 0,
-                    y: [0, -8, 0]
+                    y: [0, -8, 0],
                   }}
-                  transition={{ 
-                    delay: 0.8, 
-                    duration: 0.8, 
-                    type: "spring", 
+                  transition={{
+                    delay: 0.8,
+                    duration: 0.8,
+                    type: "spring",
                     bounce: 0.6,
                     y: {
                       duration: 2,
                       repeat: Infinity,
                       repeatType: "reverse",
                       ease: "easeInOut",
-                      delay: 0.5
-                    }
+                      delay: 0.5,
+                    },
                   }}
                   className="text-4xl"
                 >

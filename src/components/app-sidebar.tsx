@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  ChevronUp,
-  CreditCard,
-  History,
-  Home,
-  LogOut,
-} from "lucide-react";
+import { ChevronUp, CreditCard, History, Home, LogOut } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -173,9 +167,7 @@ export const AppSidebar = ({ user }: AppSidebarProps) => {
                 return (
                   <SidebarMenuItem
                     key={item.title}
-                    className={
-                      shouldCollapse ? "flex justify-center" : ""
-                    }
+                    className={shouldCollapse ? "flex justify-center" : ""}
                   >
                     {shouldCollapse ? (
                       <Link

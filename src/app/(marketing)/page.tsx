@@ -1,4 +1,4 @@
-import { ImageToImageGenerator } from '@/modules/replicate/components/image-to-image-generator';
+import { ImageToImageGenerator } from "@/modules/replicate/components/image-to-image-generator";
 
 const HomePage = () => {
   return (
@@ -11,8 +11,9 @@ const HomePage = () => {
               AI Image Transformation
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Transform your photos into stunning artwork with our AI-powered image-to-image generator. 
-              Choose from various styles and personas to create unique variations of your images.
+              Transform your photos into stunning artwork with our AI-powered
+              image-to-image generator. Choose from various styles and personas
+              to create unique variations of your images.
             </p>
           </div>
 
