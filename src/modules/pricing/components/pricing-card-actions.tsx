@@ -13,9 +13,12 @@ import { createCreditPackagePaymentAction } from "@/modules/payment/actions/paym
 import { createSubscriptionAction } from "@/modules/payment/actions/subscription-actions";
 import { SubscriptionPlan } from "@/modules/payment/types/payment";
 
+import { UserPlanInfo } from "../actions/get-user-plan";
+
 interface PricingCardActionsProps {
   plan: PricingPlan;
   isYearly: boolean;
+  userPlanInfo: UserPlanInfo;
   className?: string;
   variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
 }
@@ -23,12 +26,30 @@ interface PricingCardActionsProps {
 export const PricingCardActions = ({ 
   plan, 
   isYearly, 
+  userPlanInfo,
   className, 
   variant 
 }: PricingCardActionsProps) => {
   // const router = useRouter(); // Removed for now
   const [isPending, startTransition] = useTransition();
   const [showSignInDialog, setShowSignInDialog] = useState(false);
+
+  // Helper function to get plan level for comparison
+  const getPlanLevel = (planName: string): number => {
+    switch (planName.toLowerCase()) {
+      case 'free': return 0;
+      case 'starter': return 1;
+      case 'pro': return 2;
+      case 'credits pack': return 1; // Same level as starter for simplicity
+      default: return 0;
+    }
+  };
+
+  const currentPlanLevel = getPlanLevel(userPlanInfo.currentPlan || 'free');
+  const targetPlanLevel = getPlanLevel(plan.name);
+  const isCurrentPlan = userPlanInfo.currentPlan === plan.name.toLowerCase().replace(' ', '_');
+  const isDowngrade = userPlanInfo.isAuthenticated && targetPlanLevel < currentPlanLevel && plan.isSubscription;
+  const isDisabled = isCurrentPlan || isDowngrade;
 
   const handleSubscription = async () => {
     startTransition(async () => {
@@ -66,32 +87,52 @@ export const PricingCardActions = ({
     });
   };
 
-  // Free plan - redirect to sign up
+  // Free plan handling
   if (plan.free) {
-    return (
-      <Button
-        asChild
-        className={className}
-        variant={variant}
-      >
-        <Link href="/sign-in">
-          {plan.buttonText}
-        </Link>
-      </Button>
-    );
+    if (userPlanInfo.isAuthenticated) {
+      // Already logged in - redirect to dashboard
+      return (
+        <Button
+          asChild
+          className={className}
+          variant={variant}
+        >
+          <Link href="/dashboard">
+            Go to Dashboard
+          </Link>
+        </Button>
+      );
+    } else {
+      // Not logged in - redirect to sign up
+      return (
+        <Button
+          asChild
+          className={className}
+          variant={variant}
+        >
+          <Link href="/sign-in">
+            {plan.buttonText}
+          </Link>
+        </Button>
+      );
+    }
   }
 
   // All paid plans - create subscription or one-time payment
   return (
     <>
       <Button
-        onClick={handleSubscription}
-        disabled={isPending}
-        className={className}
+        onClick={isDisabled ? undefined : handleSubscription}
+        disabled={isPending || isDisabled}
+        className={`${className} ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
         variant={variant}
       >
         {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-        {isPending ? "Processing..." : plan.buttonText}
+        {isPending 
+          ? "Processing..." 
+          : isCurrentPlan 
+            ? "Current Plan" 
+            : plan.buttonText}
       </Button>
 
       <SignInDialog

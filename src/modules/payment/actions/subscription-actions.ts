@@ -3,10 +3,13 @@
 // Import to register providers
 import "../providers";
 
+import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { siteConfig } from "@/config/site";
+import { db } from "@/db";
+import { user } from "@/db/schema";
 import { auth } from "@/lib/auth";
 
 import { PaymentService } from "../services/payment-service";
@@ -29,6 +32,38 @@ export async function createSubscriptionAction(
     // Don't create subscription for free plan
     if (plan === 'free') {
       return { success: false, error: "Free plan doesn't require payment" };
+    }
+
+    // Get current user plan to check for downgrades
+    const [userInfo] = await db
+      .select({
+        currentPlan: user.currentPlan,
+      })
+      .from(user)
+      .where(eq(user.id, session.user.id));
+
+    if (userInfo) {
+      // Helper function to get plan level
+      const getPlanLevel = (planName: string): number => {
+        switch (planName) {
+          case 'free': return 0;
+          case 'starter': return 1;
+          case 'pro': return 2;
+          case 'credits_pack': return 1; // Same level as starter
+          default: return 0;
+        }
+      };
+
+      const currentLevel = getPlanLevel(userInfo.currentPlan);
+      const targetLevel = getPlanLevel(plan);
+
+      // Prevent downgrades for subscription plans
+      if (currentLevel > targetLevel && plan !== 'credits_pack') {
+        return { 
+          success: false, 
+          error: "Downgrade not allowed. Please cancel your current subscription first." 
+        };
+      }
     }
 
     const paymentService = new PaymentService();

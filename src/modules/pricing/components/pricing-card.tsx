@@ -4,15 +4,17 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { PricingPlan } from "@/config/site";
 
+import { UserPlanInfo } from "../actions/get-user-plan";
 import { PricingCardActions } from "./pricing-card-actions";
 
 interface PricingCardProps {
   plan: PricingPlan;
   isYearly: boolean;
+  userPlanInfo: UserPlanInfo;
   className?: string;
 }
 
-export const PricingCard = ({ plan, isYearly, className = "" }: PricingCardProps) => {
+export const PricingCard = ({ plan, isYearly, userPlanInfo, className = "" }: PricingCardProps) => {
   // 对于没有包年选项的计划，强制使用月付价格
   const effectiveIsYearly = plan.hasYearlyOption ? isYearly : false;
   const currentPrice = effectiveIsYearly ? plan.yearlyPrice : plan.monthlyPrice;
@@ -102,6 +104,7 @@ export const PricingCard = ({ plan, isYearly, className = "" }: PricingCardProps
         <PricingCardActions 
           plan={plan} 
           isYearly={effectiveIsYearly}
+          userPlanInfo={userPlanInfo}
           className={`w-full h-11 text-sm font-medium ${
             plan.popular
               ? "bg-primary text-primary-foreground hover:bg-primary/90"

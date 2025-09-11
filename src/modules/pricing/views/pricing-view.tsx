@@ -6,10 +6,15 @@ import { useState } from "react";
 import { MotionDiv, MotionH1, MotionP } from "@/components/motion-wrapper";
 import { siteConfig } from "@/config/site";
 
+import { UserPlanInfo } from "../actions/get-user-plan";
 import { PricingCard } from "../components/pricing-card";
 import { PricingToggle } from "../components/pricing-toggle";
 
-export const PricingView = () => {
+interface PricingViewProps {
+  userPlanInfo: UserPlanInfo;
+}
+
+export const PricingView = ({ userPlanInfo }: PricingViewProps) => {
   const [isYearly, setIsYearly] = useState(false);
   const isYearlyPricingEnabled = process.env.NEXT_PUBLIC_ENABLE_YEARLY_PRICING === 'true';
 
@@ -84,6 +89,7 @@ export const PricingView = () => {
                 <PricingCard
                   plan={plan}
                   isYearly={isYearlyPricingEnabled ? isYearly : false}
+                  userPlanInfo={userPlanInfo}
                   className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 w-full max-w-sm"
                 />
               </MotionDiv>

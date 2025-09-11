@@ -7,10 +7,12 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
+  Home,
   Image as ImageIcon,
   Loader2,
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 
 import { MotionDiv } from "@/components/motion-wrapper";
@@ -297,15 +299,19 @@ export const GenerationHistoryView = ({
 
   if (generations.length === 0) {
     return (
-      <div
-        className={`flex flex-col items-center justify-center py-12 ${className}`}
-      >
+      <div className="min-h-[calc(100vh-200px)] flex flex-col items-center justify-center">
         <ImageIcon className="h-16 w-16 text-muted-foreground mb-4" />
         <h3 className="text-lg font-semibold mb-2">No Generations Yet</h3>
-        <p className="text-muted-foreground text-center max-w-md">
+        <p className="text-muted-foreground text-center max-w-md mb-6">
           You haven&apos;t generated any images yet. Start creating amazing AI
           art by uploading an image and choosing your style!
         </p>
+        <Button asChild className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-medium py-3 px-6 rounded-xl shadow-[0_4px_20px_rgb(5,150,105,0.3)] hover:shadow-[0_6px_25px_rgb(5,150,105,0.4)] transition-all duration-300 hover:scale-105">
+          <Link href="/">
+            <ImageIcon className="h-4 w-4 mr-2" />
+            Create Your First Design
+          </Link>
+        </Button>
       </div>
     );
   }
