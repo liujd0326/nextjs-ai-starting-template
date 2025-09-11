@@ -80,6 +80,32 @@ export async function cancelSubscriptionAction(cancelAtPeriodEnd: boolean = true
       throw new Error("No active subscription found");
     }
 
+    // Check if subscription ID is invalid (e.g., checkout session ID)
+    if (!subscription.providerSubscriptionId.startsWith('sub_')) {
+      console.warn(`Invalid subscription ID detected: ${subscription.providerSubscriptionId}. Updating user plan directly.`);
+      
+      // Import db and user directly
+      const { db } = await import("@/db");
+      const { user } = await import("@/db/schema");
+      const { eq } = await import("drizzle-orm");
+      
+      // Update user plan to free and reset credits
+      await db
+        .update(user)
+        .set({
+          currentPlan: 'free',
+          monthlyCredits: 0,
+          creditsResetDate: null,
+          updatedAt: new Date()
+        })
+        .where(eq(user.id, session.user.id));
+      
+      return {
+        success: true,
+        message: "Subscription has been canceled and plan updated to free"
+      };
+    }
+
     await paymentService.cancelSubscription(subscription.id, cancelAtPeriodEnd);
     
     return {
@@ -97,30 +123,6 @@ export async function cancelSubscriptionAction(cancelAtPeriodEnd: boolean = true
   }
 }
 
-/**
- * Create billing portal session
- */
-export async function createBillingPortalAction() {
-  try {
-    const session = await auth.api.getSession({ headers: await headers() });
-    if (!session?.user?.id) {
-      redirect("/sign-in");
-    }
-
-    const paymentService = new PaymentService();
-    const returnUrl = `${siteConfig.url}/subscription`;
-    
-    const portalSession = await paymentService.createBillingPortalSession(
-      session.user.id,
-      returnUrl
-    );
-
-    redirect(portalSession.url);
-  } catch (error: any) {
-    console.error("Failed to create billing portal:", error);
-    throw new Error(`Failed to access billing portal: ${error.message}`);
-  }
-}
 
 /**
  * Get current user subscription

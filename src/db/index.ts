@@ -1,3 +1,11 @@
 import { drizzle } from "drizzle-orm/neon-http";
+import { neon } from "@neondatabase/serverless";
 
-export const db = drizzle(process.env.DATABASE_URL!);
+// Configure Neon client with better error handling
+const sql = neon(process.env.DATABASE_URL!, {
+  fetchOptions: {
+    cache: 'no-store',
+  },
+});
+
+export const db = drizzle(sql);

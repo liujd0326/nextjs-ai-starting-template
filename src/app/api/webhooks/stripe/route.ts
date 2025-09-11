@@ -497,7 +497,7 @@ async function handlePaymentFailed(invoice: any, _paymentService: PaymentService
       .update(user)
       .set({
         currentPlan: 'free',
-        monthlyCredits: 10,
+        monthlyCredits: 0,
         // Keep purchasedCredits unchanged
         updatedAt: new Date()
       })
@@ -572,7 +572,7 @@ async function handleSubscriptionDeleted(subscription: any, _paymentService: Pay
     .update(user)
     .set({
       currentPlan: 'free',
-      monthlyCredits: 10,
+      monthlyCredits: 0,
       // Keep purchasedCredits unchanged
       updatedAt: new Date()
     })
@@ -586,11 +586,11 @@ async function handleSubscriptionDeleted(subscription: any, _paymentService: Pay
  */
 function getPlanCredits(plan: string): number {
   const credits = {
-    free: 10,
+    free: 0,
     starter: 100,
     pro: 500,
     credits_pack: 1000 // Large number for "unlimited"
   };
   
-  return credits[plan as keyof typeof credits] || 10;
+  return credits[plan as keyof typeof credits] || 0;
 }

@@ -1,16 +1,18 @@
 "use client";
 
-import { AlertTriangle, Calendar, CreditCard, ExternalLink, Settings, Users, Zap } from "lucide-react";
-import { useTransition } from "react";
+import { AlertTriangle, Calendar, CreditCard, Settings, Users, Zap } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { MotionDiv } from "@/components/motion-wrapper";
+import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { cancelSubscriptionAction, createBillingPortalAction } from "../actions/subscription-actions";
+import { cancelSubscriptionAction } from "../actions/subscription-actions";
 import { formatSubscriptionStatus, getNextBillingDate } from "../utils";
 
 interface User {
@@ -43,12 +45,16 @@ export const SubscriptionManagementView = ({
   user, 
   subscription 
 }: SubscriptionManagementViewProps) => {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
 
-  const handleCancelSubscription = async () => {
-    if (!confirm("Are you sure you want to cancel your subscription? You'll still have access until the end of your billing period.")) {
-      return;
-    }
+  const handleCancelSubscription = () => {
+    setShowCancelDialog(true);
+  };
+
+  const confirmCancelSubscription = async () => {
+    setShowCancelDialog(false);
 
     startTransition(async () => {
       try {
@@ -57,8 +63,10 @@ export const SubscriptionManagementView = ({
           toast.success("Subscription canceled", {
             description: result.message
           });
-          // Refresh page to show updated status
-          window.location.reload();
+          // Use router refresh instead of hard reload to handle database connection issues gracefully
+          setTimeout(() => {
+            router.refresh();
+          }, 1000);
         } else {
           toast.error("Failed to cancel subscription", {
             description: result.message
@@ -72,17 +80,6 @@ export const SubscriptionManagementView = ({
     });
   };
 
-  const handleBillingPortal = () => {
-    startTransition(async () => {
-      try {
-        await createBillingPortalAction();
-      } catch (error) {
-        toast.error("Failed to open billing portal", {
-          description: error instanceof Error ? error.message : "Unknown error"
-        });
-      }
-    });
-  };
 
   const formatPrice = (amount: number, currency: string) => {
     return new Intl.NumberFormat('en-US', {
@@ -92,7 +89,8 @@ export const SubscriptionManagementView = ({
   };
 
   return (
-    <div className="max-w-[1600px] mx-auto px-4 md:px-8 lg:px-16 py-12 space-y-12">
+    <>
+      <div className="max-w-[1600px] mx-auto px-4 md:px-8 lg:px-16 py-12 space-y-12">
         {/* Welcome Header */}
         <MotionDiv
           initial={{ opacity: 0, y: -20 }}
@@ -131,7 +129,7 @@ export const SubscriptionManagementView = ({
               </CardHeader>
             
               <CardContent>
-                {subscription || (user.currentPlan && user.currentPlan !== 'free') ? (
+                {(user.currentPlan && user.currentPlan !== 'free') ? (
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="flex justify-between items-center md:flex-col md:items-center md:text-center p-4 bg-emerald-50 rounded-xl border border-emerald-200">
@@ -149,7 +147,9 @@ export const SubscriptionManagementView = ({
                           </div>
                           
                           <div className="flex justify-between items-center md:flex-col md:items-center md:text-center p-4 bg-gray-50 rounded-xl border border-gray-200">
-                            <span className="text-sm font-medium text-gray-600 md:mb-2">Next Billing</span>
+                            <span className="text-sm font-medium text-gray-600 md:mb-2">
+                              {subscription.cancelAtPeriodEnd ? "Access Until" : "Next Billing"}
+                            </span>
                             <span className="text-lg font-semibold text-gray-900">
                               {getNextBillingDate(new Date(subscription.currentPeriodEnd))}
                             </span>
@@ -160,9 +160,9 @@ export const SubscriptionManagementView = ({
 
                     {/* Cancellation Warning */}
                     {subscription && subscription.cancelAtPeriodEnd && (
-                      <Alert>
-                        <AlertTriangle className="h-4 w-4" />
-                        <AlertDescription>
+                      <Alert className="border-amber-200 bg-amber-50">
+                        <AlertTriangle className="h-4 w-4 text-amber-600" />
+                        <AlertDescription className="text-amber-800">
                           Your subscription is scheduled to cancel on{" "}
                           {getNextBillingDate(new Date(subscription.currentPeriodEnd))}.
                         </AlertDescription>
@@ -178,19 +178,14 @@ export const SubscriptionManagementView = ({
                         </a>
                       </Button>
 
-                      {subscription && (
-                        <Button
-                          onClick={handleBillingPortal}
-                          disabled={isPending}
-                          variant="outline"
-                          className="border-emerald-200 text-emerald-700 hover:bg-emerald-50"
-                        >
-                          <ExternalLink className="w-4 h-4 mr-2" />
-                          Billing Portal
-                        </Button>
-                      )}
+                      <Button asChild variant="outline" className="border-emerald-200 text-emerald-700 hover:bg-emerald-50">
+                        <a href="/pricing">
+                          <CreditCard className="w-4 h-4 mr-2" />
+                          Buy Credits
+                        </a>
+                      </Button>
                       
-                      {(user.currentPlan && user.currentPlan !== 'free') && (
+                      {(user.currentPlan && user.currentPlan !== 'free' && !subscription?.cancelAtPeriodEnd) && (
                         <Button
                           onClick={handleCancelSubscription}
                           disabled={isPending}
@@ -322,6 +317,42 @@ export const SubscriptionManagementView = ({
             </MotionDiv>
           </div>
         </div>
-    </div>
+      </div>
+      
+      {/* Cancel Subscription Dialog */}
+      <ResponsiveDialog
+        open={showCancelDialog}
+        onOpenChange={setShowCancelDialog}
+        title="Cancel Subscription"
+        description="Are you sure you want to cancel your subscription?"
+      >
+        <div className="space-y-4">
+          <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <strong>Note:</strong> You'll continue to have access until the end of your current billing period, and your remaining credits will remain available for use.
+            </p>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-2 pt-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowCancelDialog(false)}
+              disabled={isPending}
+              className="flex-1"
+            >
+              Keep Subscription
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={confirmCancelSubscription}
+              disabled={isPending}
+              className="flex-1"
+            >
+              {isPending ? "Canceling..." : "Cancel Subscription"}
+            </Button>
+          </div>
+        </div>
+      </ResponsiveDialog>
+    </>
   );
 };

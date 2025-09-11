@@ -51,8 +51,6 @@ export abstract class BasePaymentProvider {
   abstract parseWebhookEvent(body: string): WebhookEvent;
   abstract processWebhookEvent(event: WebhookEvent): Promise<ProcessedWebhookEvent>;
 
-  // Portal/management
-  abstract createBillingPortalSession(customerId: string, returnUrl: string): Promise<{ url: string }>;
 
   // Price/product management
   abstract createPrice(productId: string, amount: number, currency: string, interval: 'month' | 'year'): Promise<string>;

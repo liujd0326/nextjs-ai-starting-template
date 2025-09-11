@@ -130,7 +130,7 @@ export class StripeProvider extends BasePaymentProvider {
       });
 
       return {
-        subscriptionId: session.id,
+        subscriptionId: session.id, // Note: This is actually a checkout session ID, not a subscription ID
         checkoutUrl: session.url!,
         customerId: request.customerId,
       };
@@ -223,6 +223,11 @@ export class StripeProvider extends BasePaymentProvider {
     request: CancelSubscriptionRequest
   ): Promise<ProviderSubscription> {
     try {
+      // Check if the ID is a valid subscription ID (should start with 'sub_')
+      if (!request.subscriptionId.startsWith('sub_')) {
+        throw new Error(`Invalid subscription ID format: ${request.subscriptionId}. Expected subscription ID to start with 'sub_'`);
+      }
+
       let subscription;
 
       if (request.cancelAtPeriodEnd) {
@@ -240,6 +245,10 @@ export class StripeProvider extends BasePaymentProvider {
 
       return this.convertToProviderSubscription(subscription);
     } catch (error: any) {
+      console.error('Stripe subscription cancellation error:', {
+        subscriptionId: request.subscriptionId,
+        error: error.message
+      });
       throw new Error(`Failed to cancel Stripe subscription: ${error.message}`);
     }
   }
@@ -388,23 +397,6 @@ export class StripeProvider extends BasePaymentProvider {
     return result;
   }
 
-  async createBillingPortalSession(
-    customerId: string,
-    returnUrl: string
-  ): Promise<{ url: string }> {
-    try {
-      const session = await this.stripe.billingPortal.sessions.create({
-        customer: customerId,
-        return_url: returnUrl,
-      });
-
-      return { url: session.url };
-    } catch (error: any) {
-      throw new Error(
-        `Failed to create Stripe billing portal: ${error.message}`
-      );
-    }
-  }
 
   async createPrice(
     productId: string,

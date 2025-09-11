@@ -58,31 +58,15 @@ export class PaymentService {
       throw new Error(`Failed to create customer: ${error.message}`);
     }
 
-    // Create subscription with provider
+    // Create subscription checkout session with provider
     const subscriptionResponse = await paymentProvider.createSubscription({
       ...request,
       customerId
     } as any);
 
-    // Store subscription in database
-    const planPricing = this.getPlanPricing(request.plan, request.interval);
-    
-    await db.insert(subscriptions).values({
-      id: `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      userId: request.userId,
-      provider: this.provider,
-      providerSubscriptionId: subscriptionResponse.subscriptionId,
-      providerCustomerId: customerId,
-      plan: request.plan,
-      status: 'trialing' as SubscriptionStatus,
-      currentPeriodStart: new Date(),
-      currentPeriodEnd: new Date(Date.now() + (request.trialDays || 14) * 24 * 60 * 60 * 1000),
-      currency: planPricing.currency,
-      amount: planPricing.amount,
-      interval: request.interval,
-      trialStart: new Date(),
-      trialEnd: new Date(Date.now() + (request.trialDays || 14) * 24 * 60 * 60 * 1000),
-    });
+    // Note: Do NOT create subscription record here!
+    // The actual subscription will be created by the webhook when payment is completed
+    // subscriptionResponse.subscriptionId is actually a checkout session ID, not a subscription ID
 
     return subscriptionResponse;
   }
@@ -126,8 +110,8 @@ export class PaymentService {
    * Get user's current subscription
    */
   async getUserSubscription(userId: string) {
-    // First try to get active subscription
-    let [subscription] = await db
+    // Only get active subscriptions
+    const [subscription] = await db
       .select()
       .from(subscriptions)
       .where(
@@ -138,16 +122,7 @@ export class PaymentService {
       )
       .orderBy(desc(subscriptions.createdAt));
 
-    // If no active subscription, get the most recent one regardless of status
-    if (!subscription) {
-      [subscription] = await db
-        .select()
-        .from(subscriptions)
-        .where(eq(subscriptions.userId, userId))
-        .orderBy(desc(subscriptions.createdAt));
-    }
-
-    return subscription;
+    return subscription || null;
   }
 
   /**
@@ -218,7 +193,7 @@ export class PaymentService {
    */
   private getPlanCredits(plan: SubscriptionPlan) {
     const credits = {
-      free: { monthly: 10 },
+      free: { monthly: 0 },
       starter: { monthly: 100 },
       pro: { monthly: 500 },
       credits_pack: { monthly: 1000 } // 1000 credits
@@ -227,22 +202,4 @@ export class PaymentService {
     return credits[plan];
   }
 
-  /**
-   * Create billing portal session
-   */
-  async createBillingPortalSession(userId: string, returnUrl: string): Promise<{ url: string }> {
-    const subscription = await this.getUserSubscription(userId);
-    
-    if (!subscription) {
-      throw new Error("No active subscription found");
-    }
-
-    const config = getProviderConfig(this.provider);
-    const paymentProvider = PaymentProviderFactory.createProvider(config);
-
-    return await paymentProvider.createBillingPortalSession(
-      subscription.providerCustomerId, 
-      returnUrl
-    );
-  }
 }

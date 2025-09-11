@@ -16,9 +16,16 @@ export default async function DashboardLayout({
 }) {
   // 获取 session 仅用于显示用户信息
   // 认证检查已在中间件中处理
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  let session = null;
+  
+  try {
+    session = await auth.api.getSession({
+      headers: await headers(),
+    });
+  } catch (error) {
+    console.warn('Failed to get session in dashboard layout:', error);
+    // Continue without session data - the middleware already handles auth
+  }
 
   return (
     <DashboardSidebarProvider>

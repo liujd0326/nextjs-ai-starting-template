@@ -37,9 +37,9 @@ export const user = pgTable("user", {
   currentPlan: subscriptionPlanEnum("current_plan")
     .$defaultFn(() => 'free'),
   monthlyCredits: integer("monthly_credits")
-    .$defaultFn(() => 10),
-  purchasedCredits: integer("purchased_credits")
     .$defaultFn(() => 0),
+  purchasedCredits: integer("purchased_credits")
+    .$defaultFn(() => 10),
   creditsResetDate: timestamp("credits_reset_date"),
   trialEndsAt: timestamp("trial_ends_at"),
   createdAt: timestamp("created_at")
