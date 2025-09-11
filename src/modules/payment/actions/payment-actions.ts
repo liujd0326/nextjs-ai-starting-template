@@ -55,7 +55,7 @@ export async function createOneTimePaymentAction(
     // Get the credits pack price ID from configuration
     const { getStripePriceId } = await import("@/config/site");
     const creditsPackPlan = siteConfig.pricing.credits_pack;
-    const priceId = getStripePriceId(creditsPackPlan, false); // Credits pack doesn't have yearly option
+    const priceId = getStripePriceId(creditsPackPlan);
 
     const checkoutSession = await stripe.checkout.sessions.create({
       customer: customerId,

@@ -57,66 +57,37 @@ export class PaymentProviderFactory {
 export function getProviderConfig(
   provider: PaymentProvider
 ): PaymentProviderConfig {
-  const environment = process.env.NODE_ENV === "production" ? "live" : "test";
-
   switch (provider) {
     case "stripe":
       return {
         provider: "stripe",
-        apiKey:
-          environment === "live"
-            ? process.env.STRIPE_SECRET_KEY!
-            : process.env.STRIPE_SECRET_KEY_TEST!,
-        webhookSecret:
-          environment === "live"
-            ? process.env.STRIPE_WEBHOOK_SECRET!
-            : process.env.STRIPE_WEBHOOK_SECRET_TEST!,
-        environment,
+        apiKey: process.env.STRIPE_SECRET_KEY!,
+        webhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
+        environment: process.env.NODE_ENV === "production" ? "live" : "test",
         config: {
-          publishableKey:
-            environment === "live"
-              ? process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
-              : process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_TEST!,
+          publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
         },
       };
 
     case "creem":
       return {
         provider: "creem",
-        apiKey:
-          environment === "live"
-            ? process.env.CREEM_API_KEY!
-            : process.env.CREEM_API_KEY_TEST!,
-        webhookSecret:
-          environment === "live"
-            ? process.env.CREEM_WEBHOOK_SECRET!
-            : process.env.CREEM_WEBHOOK_SECRET_TEST!,
-        environment,
+        apiKey: process.env.CREEM_API_KEY!,
+        webhookSecret: process.env.CREEM_WEBHOOK_SECRET!,
+        environment: process.env.NODE_ENV === "production" ? "live" : "test",
         config: {
-          publishableKey:
-            environment === "live"
-              ? process.env.NEXT_PUBLIC_CREEM_PUBLISHABLE_KEY!
-              : process.env.NEXT_PUBLIC_CREEM_PUBLISHABLE_KEY_TEST!,
+          publishableKey: process.env.NEXT_PUBLIC_CREEM_PUBLISHABLE_KEY!,
         },
       };
 
     case "paypal":
       return {
         provider: "paypal",
-        apiKey:
-          environment === "live"
-            ? process.env.PAYPAL_CLIENT_ID!
-            : process.env.PAYPAL_CLIENT_ID_TEST!,
-        webhookSecret:
-          environment === "live"
-            ? process.env.PAYPAL_WEBHOOK_SECRET!
-            : process.env.PAYPAL_WEBHOOK_SECRET_TEST!,
-        environment,
+        apiKey: process.env.PAYPAL_CLIENT_ID!,
+        webhookSecret: process.env.PAYPAL_WEBHOOK_SECRET!,
+        environment: process.env.NODE_ENV === "production" ? "live" : "test",
         config: {
-          clientSecret:
-            environment === "live"
-              ? process.env.PAYPAL_CLIENT_SECRET!
-              : process.env.PAYPAL_CLIENT_SECRET_TEST!,
+          clientSecret: process.env.PAYPAL_CLIENT_SECRET!,
         },
       };
 

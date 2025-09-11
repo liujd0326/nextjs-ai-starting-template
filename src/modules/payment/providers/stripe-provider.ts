@@ -488,7 +488,7 @@ export class StripeProvider extends BasePaymentProvider {
 
   private async getOrCreatePrice(
     plan: string,
-    interval: "month" | "year"
+    interval: "month"
   ): Promise<string> {
     // Import siteConfig to get price IDs from environment variables
     const { siteConfig, getStripePriceId } = await import("@/config/site");
@@ -503,7 +503,7 @@ export class StripeProvider extends BasePaymentProvider {
     }
 
     // Get the appropriate price ID using our helper function
-    const priceId = getStripePriceId(planConfig, interval === "year");
+    const priceId = getStripePriceId(planConfig);
 
     if (!priceId) {
       throw new Error(

@@ -17,7 +17,6 @@ import { UserPlanInfo } from "../actions/get-user-plan";
 
 interface PricingCardActionsProps {
   plan: PricingPlan;
-  isYearly: boolean;
   userPlanInfo: UserPlanInfo;
   className?: string;
   variant?:
@@ -31,7 +30,6 @@ interface PricingCardActionsProps {
 
 export const PricingCardActions = ({
   plan,
-  isYearly,
   userPlanInfo,
   className,
   variant,
@@ -77,8 +75,7 @@ export const PricingCardActions = ({
         } else {
           // Convert plan name to subscription plan type
           const subscriptionPlan = plan.name.toLowerCase() as SubscriptionPlan;
-          const interval = isYearly ? "year" : "month";
-          result = await createSubscriptionAction(subscriptionPlan, interval);
+          result = await createSubscriptionAction(subscriptionPlan, "month");
         }
 
         if (result.success) {

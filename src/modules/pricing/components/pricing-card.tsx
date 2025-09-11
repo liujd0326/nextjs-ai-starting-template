@@ -16,28 +16,15 @@ import { PricingCardActions } from "./pricing-card-actions";
 
 interface PricingCardProps {
   plan: PricingPlan;
-  isYearly: boolean;
   userPlanInfo: UserPlanInfo;
   className?: string;
 }
 
 export const PricingCard = ({
   plan,
-  isYearly,
   userPlanInfo,
   className = "",
 }: PricingCardProps) => {
-  // 对于没有包年选项的计划，强制使用月付价格
-  const effectiveIsYearly = plan.hasYearlyOption ? isYearly : false;
-  const currentPrice = effectiveIsYearly ? plan.yearlyPrice : plan.monthlyPrice;
-  const monthlyPrice = effectiveIsYearly
-    ? plan.yearlyPrice / 12
-    : plan.monthlyPrice;
-  const discountPercentage =
-    effectiveIsYearly && plan.monthlyPrice > 0 && plan.hasYearlyOption
-      ? Math.round((1 - plan.yearlyPrice / 12 / plan.monthlyPrice) * 100)
-      : 0;
-
   return (
     <Card
       className={`relative flex flex-col h-full min-h-[500px] sm:min-h-[550px] ${plan.popular ? "ring-2 ring-primary" : ""} ${className}`}
@@ -52,11 +39,6 @@ export const PricingCard = ({
         {plan.popular && (
           <Badge className="bg-gray-800 text-white hover:bg-gray-700 text-xs sm:text-sm px-2 py-1">
             MOST POPULAR
-          </Badge>
-        )}
-        {discountPercentage > 0 && (
-          <Badge className="bg-green-600 text-white hover:bg-green-700 text-xs sm:text-sm px-2 py-1">
-            SAVE {discountPercentage}%
           </Badge>
         )}
       </div>
@@ -81,7 +63,7 @@ export const PricingCard = ({
             <>
               <div className="flex items-baseline mb-1">
                 <span className="text-3xl sm:text-4xl font-bold">
-                  ${monthlyPrice.toFixed(2)}
+                  ${plan.price.toFixed(2)}
                 </span>
                 {plan.isSubscription ? (
                   <span className="text-sm text-muted-foreground ml-1">
@@ -93,14 +75,9 @@ export const PricingCard = ({
                   </span>
                 )}
               </div>
-              {effectiveIsYearly && plan.hasYearlyOption && (
+              {plan.isSubscription && (
                 <div className="text-sm text-muted-foreground">
-                  ${currentPrice.toFixed(2)} billed yearly
-                </div>
-              )}
-              {!effectiveIsYearly && plan.isSubscription && (
-                <div className="text-sm text-muted-foreground">
-                  ${currentPrice.toFixed(2)} billed monthly
+                  ${plan.price.toFixed(2)} billed monthly
                 </div>
               )}
               {!plan.isSubscription && (
@@ -128,7 +105,6 @@ export const PricingCard = ({
       <CardFooter className="flex flex-col gap-3 px-4 sm:px-6 pb-6">
         <PricingCardActions
           plan={plan}
-          isYearly={effectiveIsYearly}
           userPlanInfo={userPlanInfo}
           className={`w-full h-11 text-sm font-medium ${
             plan.popular
