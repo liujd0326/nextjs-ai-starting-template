@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, Calendar, CreditCard, Settings, Users, Zap } from "lucide-react";
+import { AlertTriangle, Calendar, CreditCard, ExternalLink, Settings, Users, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { cancelSubscriptionAction } from "../actions/subscription-actions";
+import { createBillingPortalSessionAction } from "../actions/billing-portal-actions";
 import { formatSubscriptionStatus, getNextBillingDate } from "../utils";
 
 interface User {
@@ -51,6 +52,21 @@ export const SubscriptionManagementView = ({
 
   const handleCancelSubscription = () => {
     setShowCancelDialog(true);
+  };
+
+  const handleManageBilling = () => {
+    startTransition(async () => {
+      try {
+        const result = await createBillingPortalSessionAction();
+        if (result?.url) {
+          window.open(result.url, '_blank', 'noopener,noreferrer');
+        }
+      } catch (error) {
+        toast.error("Failed to access billing portal", {
+          description: error instanceof Error ? error.message : "Unknown error"
+        });
+      }
+    });
   };
 
   const confirmCancelSubscription = async () => {
@@ -184,6 +200,18 @@ export const SubscriptionManagementView = ({
                           Buy Credits
                         </a>
                       </Button>
+
+                      {(user.currentPlan && user.currentPlan !== 'free') && (
+                        <Button 
+                          onClick={handleManageBilling}
+                          disabled={isPending}
+                          variant="outline" 
+                          className="border-gray-200 text-gray-700 hover:bg-gray-50"
+                        >
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          Manage Billing
+                        </Button>
+                      )}
                       
                       {(user.currentPlan && user.currentPlan !== 'free' && !subscription?.cancelAtPeriodEnd) && (
                         <Button

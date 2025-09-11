@@ -202,4 +202,13 @@ export class PaymentService {
     return credits[plan];
   }
 
+  /**
+   * Create billing portal session for customer
+   */
+  async createBillingPortalSession(customerId: string, returnUrl: string) {
+    const config = getProviderConfig(this.provider);
+    const paymentProvider = PaymentProviderFactory.createProvider(config);
+    return await paymentProvider.createBillingPortalSession(customerId, returnUrl);
+  }
+
 }

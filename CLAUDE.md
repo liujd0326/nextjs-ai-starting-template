@@ -451,11 +451,11 @@ R2_PUBLIC_URL=https://你的域名.com  # 自定义域名或 R2 提供的公共 
 ```typescript
 const nextConfig: NextConfig = {
   images: {
-    domains: ['your-bucket.r2.dev'], // 添加你的 R2 域名
+    domains: ["your-bucket.r2.dev"], // 添加你的 R2 域名
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: '*.r2.dev',
+        protocol: "https",
+        hostname: "*.r2.dev",
       },
     ],
   },
@@ -467,23 +467,24 @@ const nextConfig: NextConfig = {
 **文件位置**: `src/lib/storage/r2.ts`
 
 ```typescript
-import { uploadToR2 } from '@/lib/storage/r2';
+import { uploadToR2 } from "@/lib/storage/r2";
 
 // 基本上传
 const result = await uploadToR2(file);
 
 // 上传到指定文件夹
-const result = await uploadToR2(file, 'images');
+const result = await uploadToR2(file, "images");
 
 // 指定文件名
-const result = await uploadToR2(file, 'uploads', 'my-file.jpg');
+const result = await uploadToR2(file, "uploads", "my-file.jpg");
 ```
 
 **返回值**:
+
 ```typescript
 interface UploadResult {
-  url: string;  // 公开访问的 URL
-  key: string;  // 文件在 R2 中的唯一标识
+  url: string; // 公开访问的 URL
+  key: string; // 文件在 R2 中的唯一标识
 }
 ```
 
@@ -518,3 +519,50 @@ interface UploadResult {
 - 遵循 Cloudflare Workers 的资源限制
 - 支付相关操作务必确保数据一致性和安全性
 - R2 上传的文件会自动生成唯一文件名，避免命名冲突
+
+[# AI 编程核心准则 v3.0]
+
+## 0. 核心全局规则 (Core Global Rules) - 最高优先级
+
+- **语言协议 (Language Protocol):** 所有输出，包括代码、注释、解释和任何形式的交流，**必须且只能使用简体中文**。此规则无任何例外。
+
+## 1. 交互原则 (Interaction Protocol)
+
+- 提交权限 (Commitment Authority): 绝对不能在没有得到我的明确许可的情况下提交任何代码。
+
+- 任务处理流程 (Task Processing Flow): 在开始任何任务前，首先评估其性质。如果任务是**简单的、一步到位的**，直接执行。如果任务**不是显而易见的**，并且其本质需要**规划、分析或迭代**，则必须使用 `sequential-thinking`。
+
+- 任务范围 (Task Scope): 除非特别说明，否则绝不创建文档、编写测试、编译或运行代码，也不要对你的工作进行总结。
+
+## 2. 核心哲学 (Guiding Philosophy)
+
+- 单一职责 (Single Responsibility): 一个函数只做一件事。但是，如果拆分会让逻辑更混乱，就不要拆分。**清晰性是最终的判断标准**。
+
+- 接口清晰 (Clear Interfaces): 模块化是为了简化，不是为了增加理解成本。你的目标是让代码的调用变得直观易懂。
+
+- 减少依赖 (Minimize Dependencies): 优先编写自包含的代码。在“复用性”和“简洁性”产生冲突时，**永远优先选择简洁**。
+
+- 避免过度设计 (Avoid Over-engineering): 当代码只服务于当前唯一场景时，用最简单直接的方式实现。**先解决眼前的问题，只在必要时进行重构**。
+
+## 3. 编码风格 (Specific Style Guide)
+
+- 文件命名规范 (File Naming Standard): 所有代码文件必须采用 蛇形命名法（snake_case），即单词全小写并用下划线分隔（例如 `data_processing.py`）。
+
+- 代码格式化原则 (Code Formatting Principle): 只格式化你**新增或修改**的代码部分。**绝对禁止**对任何你未直接操作的已有代码进行重新格式化，以确保代码变更集（diff）的纯净性。
+
+- 视觉紧凑 (Visual Compactness): 减少不必要的空行、空格和缩进，让代码在视觉上更密集。
+
+- 内外有别的命名 (Differentiated Naming):
+  - 外部API (函数/类): 使用清晰、完整的描述性名称。
+
+  - 内部变量 (临时/循环): 使用短小精悍的名称 (例如 `i`, `j`, `res`, `tmp`)。
+
+- 代码自解释 (Self-documenting Code): 只为高层逻辑（如关键函数或类）添加一句话注释说明其“为什么”存在。代码本身应该通过清晰的命名和结构来解释“如何”工作。
+
+- 拒绝重复 (DRY Principle): 一旦发现重复的代码块，立即将其提取为可复用的函数。
+
+- 高内聚 (High Cohesion): 功能高度相关的代码应优先放在同一个文件中，而不是拆分到多个小文件中。
+
+- 拥抱现代语法 (Embrace Modern Syntax): 积极使用目标语言的现代特性和语法糖 (如列表推导式、三元运算符等)，用更少的代码表达更丰富的逻辑。
+
+- 依赖轻量化 (Lightweight Dependencies): 如果必须引入第三方库，选择那些以“小而美”、高效著称的库，避免任何形式的臃肿。

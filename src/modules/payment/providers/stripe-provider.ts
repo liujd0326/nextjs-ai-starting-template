@@ -2,6 +2,7 @@ import Stripe from "stripe";
 
 import {
   CancelSubscriptionRequest,
+  CreateBillingPortalResponse,
   CreateCustomerRequest,
   CreateCustomerResponse,
   CreatePaymentRequest,
@@ -430,6 +431,24 @@ export class StripeProvider extends BasePaymentProvider {
       return product.id;
     } catch (error: any) {
       throw new Error(`Failed to create Stripe product: ${error.message}`);
+    }
+  }
+
+  async createBillingPortalSession(
+    customerId: string,
+    returnUrl: string
+  ): Promise<CreateBillingPortalResponse> {
+    try {
+      const session = await this.stripe.billingPortal.sessions.create({
+        customer: customerId,
+        return_url: returnUrl,
+      });
+
+      return {
+        url: session.url,
+      };
+    } catch (error: any) {
+      throw new Error(`Failed to create Stripe billing portal session: ${error.message}`);
     }
   }
 

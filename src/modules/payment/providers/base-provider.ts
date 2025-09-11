@@ -1,5 +1,6 @@
 import {
   CancelSubscriptionRequest,
+  CreateBillingPortalResponse,
   CreateCustomerRequest,
   CreateCustomerResponse,
   CreatePaymentRequest,
@@ -50,6 +51,9 @@ export abstract class BasePaymentProvider {
   abstract verifyWebhook(body: string, signature: string): boolean;
   abstract parseWebhookEvent(body: string): WebhookEvent;
   abstract processWebhookEvent(event: WebhookEvent): Promise<ProcessedWebhookEvent>;
+
+  // Billing portal
+  abstract createBillingPortalSession(customerId: string, returnUrl: string): Promise<CreateBillingPortalResponse>;
 
 
   // Price/product management

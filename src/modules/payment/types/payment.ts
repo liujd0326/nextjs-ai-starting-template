@@ -126,6 +126,11 @@ export interface ProviderPayment {
   createdAt: Date;
 }
 
+// Billing portal response
+export interface CreateBillingPortalResponse {
+  url: string;
+}
+
 // Provider configuration
 export interface PaymentProviderConfig {
   provider: PaymentProvider;
