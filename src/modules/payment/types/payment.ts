@@ -1,16 +1,8 @@
-import {
-  paymentProviderEnum,
-  paymentStatusEnum,
-  subscriptionPlanEnum,
-  subscriptionStatusEnum,
-} from "@/db/schema";
+import { subscriptionPlanEnum } from "@/db/schema";
 
 // Base types from database enums
-export type PaymentProvider = (typeof paymentProviderEnum.enumValues)[number];
-export type PaymentStatus = (typeof paymentStatusEnum.enumValues)[number];
+export type PaymentProvider = "stripe" | "creem" | "paypal";
 export type SubscriptionPlan = (typeof subscriptionPlanEnum.enumValues)[number];
-export type SubscriptionStatus =
-  (typeof subscriptionStatusEnum.enumValues)[number];
 
 // Subscription interfaces
 export interface CreateSubscriptionRequest {

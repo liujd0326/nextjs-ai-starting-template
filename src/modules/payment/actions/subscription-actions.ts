@@ -132,25 +132,21 @@ export async function cancelSubscriptionAction(
       redirect("/sign-in");
     }
 
-    const paymentService = new PaymentService();
-    const subscription = await paymentService.getUserSubscription(
-      session.user.id
-    );
+    // Get user's Stripe subscription ID
+    const [userRecord] = await db
+      .select()
+      .from(user)
+      .where(eq(user.id, session.user.id));
 
-    if (!subscription) {
+    if (!userRecord || !userRecord.stripeSubscriptionId) {
       throw new Error("No active subscription found");
     }
 
-    // Check if subscription ID is invalid (e.g., checkout session ID)
-    if (!subscription.providerSubscriptionId.startsWith("sub_")) {
+    // Check if subscription ID is valid (should start with 'sub_')
+    if (!userRecord.stripeSubscriptionId.startsWith("sub_")) {
       console.warn(
-        `Invalid subscription ID detected: ${subscription.providerSubscriptionId}. Updating user plan directly.`
+        `Invalid subscription ID detected: ${userRecord.stripeSubscriptionId}. Updating user plan directly.`
       );
-
-      // Import db and user directly
-      const { db } = await import("@/db");
-      const { user } = await import("@/db/schema");
-      const { eq } = await import("drizzle-orm");
 
       // Update user plan to free and reset credits
       await db
@@ -159,6 +155,7 @@ export async function cancelSubscriptionAction(
           currentPlan: "free",
           monthlyCredits: 0,
           creditsResetDate: null,
+          stripeSubscriptionId: null,
           updatedAt: new Date(),
         })
         .where(eq(user.id, session.user.id));
@@ -169,7 +166,20 @@ export async function cancelSubscriptionAction(
       };
     }
 
-    await paymentService.cancelSubscription(subscription.id, cancelAtPeriodEnd);
+    const paymentService = new PaymentService();
+    await paymentService.cancelSubscription(
+      userRecord.stripeSubscriptionId,
+      cancelAtPeriodEnd
+    );
+
+    // Update database to reflect cancellation status
+    await db
+      .update(user)
+      .set({
+        cancelAtPeriodEnd: cancelAtPeriodEnd,
+        updatedAt: new Date(),
+      })
+      .where(eq(user.id, session.user.id));
 
     return {
       success: true,

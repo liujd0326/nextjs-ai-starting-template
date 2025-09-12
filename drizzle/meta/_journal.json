@@ -8,6 +8,48 @@
       "when": 1757318950709,
       "tag": "0000_jittery_next_avengers",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1757583187037,
+      "tag": "0001_sturdy_sleeper",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1757583209898,
+      "tag": "0002_colorful_blacklash",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1757636791185,
+      "tag": "0003_living_the_stranger",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1757639919478,
+      "tag": "0004_fuzzy_namora",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1757642881111,
+      "tag": "0005_nappy_bishop",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1757646230413,
+      "tag": "0006_colossal_hellcat",
+      "breakpoints": true
     }
   ]
 }

@@ -8,6 +8,7 @@ import Replicate from "replicate";
 import { db } from "@/db";
 import { aiGenerations, user } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { deductCredits } from "@/lib/credits";
 import { uploadToR2 } from "@/lib/storage/r2";
 
 import { FaceToManyKontextInput, GenerationResult } from "../types";
@@ -60,7 +61,7 @@ export async function generateImageToImage(
 
     const totalCredits =
       (userData.monthlyCredits || 0) + (userData.purchasedCredits || 0);
-    const requiredCredits = numImages;
+    const requiredCredits = numImages; // 每生成一张图片消耗1积分
 
     if (totalCredits < requiredCredits) {
       return {
@@ -128,28 +129,21 @@ export async function generateImageToImage(
       })
       .where(eq(aiGenerations.id, generationId));
 
-    // Deduct credits immediately
-    const creditsToDeductFromMonthly = Math.min(
+    // Deduct credits using unified method
+    const deductResult = await deductCredits(
+      session.user.id,
       requiredCredits,
-      userData.monthlyCredits || 0
+      `Generated ${numImages} images using ${style} style`
     );
-    const creditsToDeductFromPurchased =
-      requiredCredits - creditsToDeductFromMonthly;
 
-    await db
-      .update(user)
-      .set({
-        monthlyCredits: Math.max(
-          0,
-          (userData.monthlyCredits || 0) - creditsToDeductFromMonthly
-        ),
-        purchasedCredits: Math.max(
-          0,
-          (userData.purchasedCredits || 0) - creditsToDeductFromPurchased
-        ),
-        updatedAt: new Date(),
-      })
-      .where(eq(user.id, session.user.id));
+    if (!deductResult.success) {
+      // Rollback generation record if credit deduction fails
+      await db.delete(aiGenerations).where(eq(aiGenerations.id, generationId));
+      return {
+        success: false,
+        message: deductResult.error || "Failed to deduct credits",
+      };
+    }
 
     // Wait for completion (simplified version - in production you'd want to poll or use webhooks)
     let finalPrediction = prediction;

@@ -1,10 +1,11 @@
 // Import to register providers
 import "../providers";
 
-import { and, desc, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
+import { getPlanCredits, siteConfig } from "@/config/site";
 import { db } from "@/db";
-import { subscriptions, user, userCredits } from "@/db/schema";
+import { user, userCredits } from "@/db/schema";
 
 import {
   getDefaultProvider,
@@ -82,70 +83,116 @@ export class PaymentService {
    * Cancel a subscription
    */
   async cancelSubscription(
-    subscriptionId: string,
+    stripeSubscriptionId: string,
     cancelAtPeriodEnd: boolean = true
   ): Promise<void> {
     const config = getProviderConfig(this.provider);
     const paymentProvider = PaymentProviderFactory.createProvider(config);
 
-    // Get subscription from database
-    const [subscription] = await db
-      .select()
-      .from(subscriptions)
-      .where(eq(subscriptions.id, subscriptionId));
-
-    if (!subscription) {
-      throw new Error("Subscription not found");
-    }
-
-    // Cancel with provider
+    // Cancel with provider directly
     await paymentProvider.cancelSubscription({
-      subscriptionId: subscription.providerSubscriptionId,
+      subscriptionId: stripeSubscriptionId,
       cancelAtPeriodEnd,
     });
 
-    // Update subscription in database
-    await db
-      .update(subscriptions)
-      .set({
-        cancelAtPeriodEnd,
-        canceledAt: cancelAtPeriodEnd ? undefined : new Date(),
-        status: cancelAtPeriodEnd ? subscription.status : "canceled",
-        updatedAt: new Date(),
-      })
-      .where(eq(subscriptions.id, subscriptionId));
+    // The webhook will handle updating the user status when cancellation is processed
   }
 
   /**
-   * Get user's current subscription
+   * Get user's current subscription status
    */
   async getUserSubscription(userId: string) {
-    // Only get active subscriptions
-    const [subscription] = await db
+    // Get user's current plan and Stripe subscription info
+    const [userRecord] = await db
       .select()
-      .from(subscriptions)
-      .where(
-        and(
-          eq(subscriptions.userId, userId),
-          eq(subscriptions.status, "active")
-        )
-      )
-      .orderBy(desc(subscriptions.createdAt));
+      .from(user)
+      .where(eq(user.id, userId));
 
-    return subscription || null;
+    if (!userRecord || !userRecord.stripeSubscriptionId) {
+      return null;
+    }
+
+    // Get real-time subscription status from Stripe
+    let stripeSubscription = null;
+    let subscriptionStatus = "active";
+    let actualCancelAtPeriodEnd = userRecord.cancelAtPeriodEnd || false;
+
+    try {
+      const config = getProviderConfig(this.provider);
+      const paymentProvider = PaymentProviderFactory.createProvider(config);
+      const stripe = (paymentProvider as { stripe: import("stripe") }).stripe;
+
+      stripeSubscription = await stripe.subscriptions.retrieve(
+        userRecord.stripeSubscriptionId
+      );
+
+      subscriptionStatus = stripeSubscription.status;
+      actualCancelAtPeriodEnd = stripeSubscription.cancel_at_period_end;
+
+      // Update local database if the cancellation status doesn't match
+      if (actualCancelAtPeriodEnd !== userRecord.cancelAtPeriodEnd) {
+        await db
+          .update(user)
+          .set({
+            cancelAtPeriodEnd: actualCancelAtPeriodEnd,
+            updatedAt: new Date(),
+          })
+          .where(eq(user.id, userId));
+      }
+    } catch (error) {
+      console.error("Failed to fetch subscription from Stripe:", error);
+      // Fall back to database values
+      subscriptionStatus = "active";
+    }
+
+    // Safely handle period end date
+    let currentPeriodEndIso = "";
+    if (stripeSubscription?.current_period_end) {
+      try {
+        const periodEndDate = new Date(stripeSubscription.current_period_end * 1000);
+        if (!isNaN(periodEndDate.getTime())) {
+          currentPeriodEndIso = periodEndDate.toISOString();
+        }
+      } catch (error) {
+        console.error("Failed to parse current_period_end:", error);
+      }
+    }
+    
+    // Fallback to database value if Stripe date is invalid
+    if (!currentPeriodEndIso && userRecord.creditsResetDate) {
+      try {
+        currentPeriodEndIso = userRecord.creditsResetDate.toISOString();
+      } catch (error) {
+        console.error("Failed to parse creditsResetDate:", error);
+      }
+    }
+
+    return {
+      id: userRecord.stripeSubscriptionId,
+      plan: userRecord.currentPlan,
+      status: subscriptionStatus,
+      amount: userRecord.subscriptionAmount || 0,
+      currency: userRecord.subscriptionCurrency || "USD",
+      interval: userRecord.subscriptionInterval || "month",
+      currentPeriodEnd: currentPeriodEndIso,
+      cancelAtPeriodEnd: actualCancelAtPeriodEnd,
+      monthlyCredits: userRecord.monthlyCredits,
+      creditsResetDate: userRecord.creditsResetDate,
+    };
   }
 
   /**
    * Update user's plan after successful payment
    */
   async updateUserPlan(userId: string, plan: SubscriptionPlan): Promise<void> {
-    const planCredits = this.getPlanCredits(plan);
+    const planConfig = siteConfig.pricing[plan];
+    const planCredits = getPlanCredits(planConfig);
 
     await db
       .update(user)
       .set({
         currentPlan: plan,
-        monthlyCredits: planCredits.monthly,
+        monthlyCredits: planCredits,
         creditsResetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
         updatedAt: new Date(),
       })
@@ -187,33 +234,14 @@ export class PaymentService {
   /**
    * Get plan pricing information
    */
-  private getPlanPricing(plan: SubscriptionPlan, interval: "month" | "year") {
-    const pricing = {
-      free: { monthly: 0, yearly: 0 },
-      starter: { monthly: 999, yearly: 9990 }, // $9.99, $99.90
-      pro: { monthly: 1999, yearly: 19990 }, // $19.99, $199.90
-      credits_pack: { monthly: 3499, yearly: 3499 }, // $34.99 one-time
-    };
+  private getPlanPricing(plan: SubscriptionPlan, _interval: "month" | "year") {
+    const planConfig = siteConfig.pricing[plan];
+    const amount = Math.round(planConfig.price * 100); // Convert to cents
 
     return {
-      amount:
-        interval === "month" ? pricing[plan].monthly : pricing[plan].yearly,
-      currency: "usd",
+      amount,
+      currency: planConfig.currency.toLowerCase(),
     };
-  }
-
-  /**
-   * Get plan credits allocation
-   */
-  private getPlanCredits(plan: SubscriptionPlan) {
-    const credits = {
-      free: { monthly: 0 },
-      starter: { monthly: 100 },
-      pro: { monthly: 500 },
-      credits_pack: { monthly: 1000 }, // 1000 credits
-    };
-
-    return credits[plan];
   }
 
   /**

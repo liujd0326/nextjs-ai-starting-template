@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 
 import { db } from "@/db";
-import { subscriptions } from "@/db/schema";
+import { user } from "@/db/schema";
 import { auth } from "@/lib/auth";
 
 import { PaymentService } from "../services/payment-service";
@@ -25,20 +25,19 @@ export const createBillingPortalSessionAction = async (): Promise<{
 
     const userId = session.user.id;
 
-    // Get user's subscription to find customer ID
-    const subscription = await db
+    // Get user's Stripe customer ID
+    const [userRecord] = await db
       .select()
-      .from(subscriptions)
-      .where(eq(subscriptions.userId, userId))
-      .limit(1);
+      .from(user)
+      .where(eq(user.id, userId));
 
-    if (!subscription.length || !subscription[0].providerCustomerId) {
+    if (!userRecord || !userRecord.stripeCustomerId) {
       throw new Error(
         "You need an active subscription to access billing management. Please upgrade your plan first."
       );
     }
 
-    const customerId = subscription[0].providerCustomerId;
+    const customerId = userRecord.stripeCustomerId;
     const returnUrl = `${process.env.BETTER_AUTH_URL}/dashboard/subscription`;
 
     // Create billing portal session

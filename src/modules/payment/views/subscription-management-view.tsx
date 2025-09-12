@@ -109,10 +109,11 @@ export const SubscriptionManagementView = ({
     });
   };
 
-  const formatPrice = (amount: number, currency: string) => {
+  const formatPrice = (amount: number, currency?: string) => {
+    const safeCurrency = currency || "USD";
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: currency.toUpperCase(),
+      currency: safeCurrency.toUpperCase(),
     }).format(amount / 100);
   };
 
@@ -165,7 +166,7 @@ export const SubscriptionManagementView = ({
                           Plan
                         </span>
                         <span className="text-xl font-bold text-emerald-700 capitalize">
-                          {subscription?.plan || user.currentPlan}
+                          {user.currentPlan || subscription?.plan}
                         </span>
                       </div>
 

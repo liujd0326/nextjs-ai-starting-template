@@ -1,18 +1,13 @@
 // Initialize payment providers
 import "@/modules/payment/providers";
 
-import { and, desc, eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
+import { getPlanCredits, siteConfig } from "@/config/site";
 import { db } from "@/db";
-import {
-  payments,
-  subscriptions,
-  user,
-  userCredits,
-  webhookEvents,
-} from "@/db/schema";
+import { user, userCredits, webhookEvents } from "@/db/schema";
 import {
   getProviderConfig,
   PaymentProviderFactory,
@@ -141,11 +136,7 @@ async function processStripeWebhook(webhookEvent: {
         break;
 
       case "customer.subscription.created":
-        console.log("Processing subscription creation");
-        await handleSubscriptionCreated(
-          webhookEvent.data.object,
-          paymentService
-        );
+        console.log("Subscription created - handled in checkout completion");
         break;
 
       default:
@@ -182,22 +173,9 @@ async function handleCheckoutCompleted(
       `One-time payment completed for user ${userId}, adding ${credits} credits`
     );
 
-    const creditAmount = parseInt(credits, 10);
-
-    // Add payment record
-    await db.insert(payments).values({
-      id: `pay_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      userId: userId,
-      provider: "stripe",
-      providerPaymentId: session.payment_intent || session.id,
-      providerPaymentIntentId: session.payment_intent || session.id,
-      status: "succeeded",
-      amount: session.amount_total || 3499,
-      currency: session.currency || "usd",
-      description: `Credit purchase - ${creditAmount} credits`,
-      metadata: JSON.stringify(session.metadata),
-      paidAt: new Date(),
-    });
+    // 从配置获取 Credits Pack 积分数
+    const creditsPackConfig = siteConfig.pricing.credits_pack;
+    const creditAmount = getPlanCredits(creditsPackConfig);
 
     // Add credits to user account
     await db.insert(userCredits).values({
@@ -233,145 +211,118 @@ async function handleCheckoutCompleted(
 
   // Handle subscription checkout
   if (session.mode === "subscription" && session.subscription && plan) {
-    // The subscription will be handled in the subscription.created event
     console.log(`Subscription checkout completed: ${session.subscription}`);
 
-    // Update user's plan
-    await paymentService.updateUserPlan(userId, plan);
-    console.log(`Updated user ${userId} to plan ${plan}`);
+    // Get plan config for credits calculation
+    const planConfig =
+      siteConfig.pricing[plan as keyof typeof siteConfig.pricing];
+
+    // Get actual subscription details from Stripe API
+    const config = getProviderConfig("stripe");
+    const stripeProvider = PaymentProviderFactory.createProvider(config);
+    const stripe = (stripeProvider as { stripe: import("stripe") }).stripe;
+
+    try {
+      const subscription = await stripe.subscriptions.retrieve(
+        session.subscription as string
+      );
+      const subscriptionItem = subscription.items.data[0];
+      const subscriptionAmount = subscriptionItem.price.unit_amount; // already in cents
+      const subscriptionCurrency =
+        subscriptionItem.price.currency.toUpperCase();
+      const subscriptionInterval = subscriptionItem.price.recurring.interval;
+
+      console.log(`[DEBUG] Real Stripe subscription details:`, {
+        subscriptionId: subscription.id,
+        subscriptionAmount,
+        subscriptionCurrency,
+        subscriptionInterval,
+        priceId: subscriptionItem.price.id,
+        plan,
+      });
+
+      // Update user's plan and Stripe IDs
+      await paymentService.updateUserPlan(userId, plan);
+
+      // Store Stripe subscription ID and details
+      await db
+        .update(user)
+        .set({
+          stripeCustomerId: session.customer as string,
+          stripeSubscriptionId: session.subscription as string,
+          subscriptionAmount: subscriptionAmount,
+          subscriptionCurrency: subscriptionCurrency,
+          subscriptionInterval: subscriptionInterval,
+          updatedAt: new Date(),
+        })
+        .where(eq(user.id, userId));
+
+      console.log(
+        `Updated user ${userId} to plan ${plan} with Stripe subscription ${session.subscription} - Amount: ${subscriptionAmount} ${subscriptionCurrency}/${subscriptionInterval}`
+      );
+
+      // Create initial user_credits record for tracking
+      const creditsAmount = getPlanCredits(planConfig);
+      await db.insert(userCredits).values({
+        id: `credit_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        userId: userId,
+        type: "initial_grant",
+        amount: creditsAmount,
+        remaining: creditsAmount,
+        source: session.subscription as string,
+        description: `Initial credits for ${plan} plan subscription`,
+        resetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+      });
+
+      console.log(
+        `Created initial user_credits record for user ${userId}: ${creditsAmount} credits`
+      );
+    } catch (error) {
+      console.error(
+        `Failed to retrieve subscription details from Stripe:`,
+        error
+      );
+      // Fallback to config-based pricing if Stripe API call fails
+      const planConfig =
+        siteConfig.pricing[plan as keyof typeof siteConfig.pricing];
+      const fallbackAmount = Math.round(planConfig.price * 100);
+
+      await paymentService.updateUserPlan(userId, plan);
+      await db
+        .update(user)
+        .set({
+          stripeCustomerId: session.customer as string,
+          stripeSubscriptionId: session.subscription as string,
+          subscriptionAmount: fallbackAmount,
+          subscriptionCurrency: planConfig.currency.toUpperCase(),
+          subscriptionInterval: session.metadata?.interval || "month",
+          updatedAt: new Date(),
+        })
+        .where(eq(user.id, userId));
+
+      // Create initial user_credits record for tracking (fallback)
+      const creditsAmount = getPlanCredits(planConfig);
+      await db.insert(userCredits).values({
+        id: `credit_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        userId: userId,
+        type: "initial_grant",
+        amount: creditsAmount,
+        remaining: creditsAmount,
+        source: session.subscription as string,
+        description: `Initial credits for ${plan} plan subscription (fallback)`,
+        resetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      });
+
+      console.log(
+        `Used fallback pricing for user ${userId}, created credits record: ${creditsAmount} credits`
+      );
+    }
     return;
   }
 
   console.log(
     `Unhandled checkout session mode: ${session.mode}, type: ${type}`
   );
-}
-
-/**
- * Handle subscription creation
- */
-async function handleSubscriptionCreated(
-  subscription: Record<string, unknown>
-) {
-  console.log("Processing subscription creation:", subscription.id);
-
-  const userId = subscription.metadata?.userId;
-  const plan = subscription.metadata?.plan || "starter";
-
-  if (!userId) {
-    // Try to find user by customer ID
-    // You would need to implement customer lookup
-    console.warn(
-      "No userId in subscription metadata, customer:",
-      subscription.customer
-    );
-    return;
-  }
-
-  // Check if subscription already exists (by provider subscription ID)
-  const existingByProviderSub = await db
-    .select()
-    .from(subscriptions)
-    .where(eq(subscriptions.providerSubscriptionId, subscription.id));
-
-  if (existingByProviderSub.length > 0) {
-    console.log(
-      `Subscription ${subscription.id} already exists, updating instead`
-    );
-    await handleSubscriptionUpdated(subscription);
-    return;
-  }
-
-  // Also check if user already has an active subscription for the same plan
-  const existingByUser = await db
-    .select()
-    .from(subscriptions)
-    .where(eq(subscriptions.userId, userId))
-    .where(eq(subscriptions.plan, plan))
-    .where(eq(subscriptions.status, "active"));
-
-  if (existingByUser.length > 0) {
-    console.log(
-      `User ${userId} already has active subscription for plan ${plan}, skipping creation`
-    );
-    return;
-  }
-
-  // Create subscription record in database
-  const subscriptionData = {
-    id: `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-    userId: userId,
-    provider: "stripe",
-    providerSubscriptionId: subscription.id,
-    providerCustomerId: subscription.customer,
-    plan: plan,
-    status: subscription.status,
-    currentPeriodStart: subscription.items?.data?.[0]?.current_period_start
-      ? new Date(subscription.items.data[0].current_period_start * 1000)
-      : null,
-    currentPeriodEnd: subscription.items?.data?.[0]?.current_period_end
-      ? new Date(subscription.items.data[0].current_period_end * 1000)
-      : null,
-    cancelAtPeriodEnd: subscription.cancel_at_period_end,
-    trialStart: subscription.trial_start
-      ? new Date(subscription.trial_start * 1000)
-      : null,
-    trialEnd: subscription.trial_end
-      ? new Date(subscription.trial_end * 1000)
-      : null,
-    currency: subscription.items.data[0]?.price?.currency || "usd",
-    amount: subscription.items.data[0]?.price?.unit_amount || 0,
-    interval: subscription.items.data[0]?.price?.recurring?.interval || "month",
-  };
-
-  await db.insert(subscriptions).values(subscriptionData);
-
-  console.log(`Created subscription record for user ${userId}`);
-
-  // Handle initial credit allocation for new subscription
-  if (subscription.status === "active") {
-    console.log("Setting up initial credits for active subscription");
-
-    try {
-      const monthlyCreditsAmount = getPlanCredits(plan);
-      // For subscription creation, use the subscription's current period end
-      const nextResetDate = subscription.items?.data?.[0]?.current_period_end
-        ? new Date(subscription.items.data[0].current_period_end * 1000)
-        : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-
-      // Update user with initial credits
-      await db
-        .update(user)
-        .set({
-          monthlyCredits: monthlyCreditsAmount,
-          currentPlan: plan,
-          creditsResetDate: nextResetDate,
-          updatedAt: new Date(),
-        })
-        .where(eq(user.id, userId))
-        .returning();
-
-      // Add credits record for tracking
-      const paymentService = new PaymentService();
-      await paymentService.addUserCredits(
-        userId,
-        monthlyCreditsAmount,
-        "initial_grant",
-        subscriptionData.id,
-        `Initial credits for ${plan} plan`
-      );
-
-      console.log(
-        `Initial credits setup complete: ${monthlyCreditsAmount} credits for user ${userId}`
-      );
-    } catch (error) {
-      console.error(
-        `Failed to setup initial credits for user ${userId}:`,
-        error
-      );
-      throw error;
-    }
-  }
 }
 
 /**
@@ -383,141 +334,208 @@ async function handlePaymentSucceeded(
 ) {
   console.log("Processing payment success for invoice:", invoice.id);
 
-  // Determine payment type
-  const isFirstPayment = invoice.billing_reason === "subscription_create";
-  const isRenewal = invoice.billing_reason === "subscription_cycle";
+  // 添加详细的调试日志来查看 invoice 对象的完整结构
+  console.log("[DEBUG] Complete invoice object:", {
+    id: invoice.id,
+    subscription: invoice.subscription,
+    subscription_id: invoice.subscription_id,
+    customer: invoice.customer,
+    amount_paid: invoice.amount_paid,
+    currency: invoice.currency,
+    billing_reason: invoice.billing_reason,
+    lines: invoice.lines,
+    subscription_details: invoice.subscription_details,
+    keys: Object.keys(invoice),
+  });
 
-  let subscriptionId = invoice.subscription;
+  // 尝试从多个可能的字段获取 subscription ID
+  let subscriptionId =
+    invoice.subscription ||
+    invoice.subscription_id ||
+    invoice.lines?.data?.[0]?.subscription ||
+    null;
 
-  // If no subscription ID in invoice, try to find by customer
-  if (!subscriptionId) {
-    console.warn(
-      `No subscription ID in invoice: ${invoice.id}, trying to find by customer`
-    );
+  const customerId = invoice.customer;
 
-    const customerSubscriptions = await db
+  console.log("[DEBUG] Extracted subscription ID:", subscriptionId);
+  console.log("[DEBUG] Customer ID:", customerId);
+
+  let userRecord;
+
+  // Try to find user by subscription ID first
+  if (subscriptionId) {
+    const userBySubscription = await db
       .select()
-      .from(subscriptions)
-      .where(eq(subscriptions.providerCustomerId, invoice.customer))
-      .orderBy(desc(subscriptions.createdAt))
-      .limit(1);
+      .from(user)
+      .where(eq(user.stripeSubscriptionId, subscriptionId as string));
 
-    if (customerSubscriptions.length > 0) {
-      const [customerSubscription] = customerSubscriptions;
-      subscriptionId = customerSubscription.providerSubscriptionId;
-    } else {
-      // For first payment, subscription might not be created yet
-      if (isFirstPayment) {
-        return; // Skip for now, will be handled when subscription is created
-      } else {
-        console.error(
-          `No subscription found for customer: ${invoice.customer}`
-        );
-        return;
-      }
+    if (userBySubscription.length > 0) {
+      userRecord = userBySubscription[0];
     }
   }
 
-  // Find subscription in our database
-  const subscriptionResults = await db
-    .select()
-    .from(subscriptions)
-    .where(eq(subscriptions.providerSubscriptionId, subscriptionId));
+  // 如果仍然没有找到 subscription ID，尝试通过 Stripe API 获取完整的 invoice 数据
+  if (!subscriptionId && invoice.id) {
+    try {
+      console.log(
+        "[DEBUG] No subscription ID found in webhook, fetching from Stripe API"
+      );
+      const config = getProviderConfig("stripe");
+      const stripeProvider = PaymentProviderFactory.createProvider(config);
+      const stripe = (stripeProvider as { stripe: import("stripe") }).stripe;
 
-  if (subscriptionResults.length === 0) {
+      const fullInvoice = await stripe.invoices.retrieve(invoice.id as string);
+      subscriptionId = fullInvoice.subscription as string;
+
+      console.log("[DEBUG] Subscription ID from Stripe API:", subscriptionId);
+
+      // 如果找到了 subscription ID，重新尝试查找用户
+      if (subscriptionId) {
+        const userByApiSubscription = await db
+          .select()
+          .from(user)
+          .where(eq(user.stripeSubscriptionId, subscriptionId));
+
+        if (userByApiSubscription.length > 0) {
+          userRecord = userByApiSubscription[0];
+          console.log("[DEBUG] Found user via Stripe API subscription ID");
+        }
+      }
+    } catch (error) {
+      console.error("[DEBUG] Failed to fetch invoice from Stripe API:", error);
+    }
+  }
+
+  // If not found by subscription ID, try to find by customer ID
+  if (!userRecord && customerId) {
+    const userByCustomer = await db
+      .select()
+      .from(user)
+      .where(eq(user.stripeCustomerId, customerId as string));
+
+    if (userByCustomer.length > 0) {
+      userRecord = userByCustomer[0];
+      console.log(
+        `Found user by customer ID: ${customerId} for invoice: ${invoice.id}`
+      );
+    }
+  }
+
+  if (!userRecord) {
     console.error(
-      `Subscription not found for invoice: ${invoice.id}, subscription ID: ${subscriptionId}`
+      `[CRITICAL] No user found for invoice payment! Invoice: ${invoice.id}, Subscription: ${subscriptionId}, Customer: ${customerId}`
     );
+
+    // 尝试查找所有可能的用户记录进行调试
+    if (customerId) {
+      const allUsersWithCustomer = await db
+        .select()
+        .from(user)
+        .where(eq(user.stripeCustomerId, customerId as string));
+      console.error(
+        `[DEBUG] Users with customer ID ${customerId}:`,
+        allUsersWithCustomer.length
+      );
+    }
+
+    if (subscriptionId) {
+      const allUsersWithSubscription = await db
+        .select()
+        .from(user)
+        .where(eq(user.stripeSubscriptionId, subscriptionId as string));
+      console.error(
+        `[DEBUG] Users with subscription ID ${subscriptionId}:`,
+        allUsersWithSubscription.length
+      );
+    }
+
     return;
   }
 
-  const [subscription] = subscriptionResults;
-
-  // Update subscription status to active
-  await db
-    .update(subscriptions)
-    .set({
-      status: "active",
-      updatedAt: new Date(),
-    })
-    .where(eq(subscriptions.id, subscription.id));
-
-  // Handle credit allocation based on payment type
-  const monthlyCreditsAmount = getPlanCredits(subscription.plan);
-
-  try {
-    const userBeforeResult = await db
-      .select()
-      .from(user)
-      .where(eq(user.id, subscription.userId));
-
-    const [userBefore] = userBeforeResult;
-
-    if (!userBefore) {
-      console.error(`No user found with ID: ${subscription.userId}`);
-      throw new Error(`User not found: ${subscription.userId}`);
-    }
-
-    // Calculate next reset date using Stripe invoice period end
-    // For renewals, use the period end from invoice lines, otherwise fallback to 30 days from now
-    const nextResetDate = invoice.lines?.data?.[0]?.period?.end
-      ? new Date(invoice.lines.data[0].period.end * 1000)
-      : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-
+  // If user has no subscription ID but we found them by customer, this might be a subscription renewal
+  if (!userRecord.stripeSubscriptionId && subscriptionId) {
+    console.log(
+      `Updating user ${userRecord.id} with subscription ID: ${subscriptionId}`
+    );
     await db
       .update(user)
       .set({
-        monthlyCredits: monthlyCreditsAmount,
-        currentPlan: subscription.plan,
-        creditsResetDate: nextResetDate,
+        stripeSubscriptionId: subscriptionId as string,
         updatedAt: new Date(),
       })
-      .where(eq(user.id, subscription.userId));
-  } catch (error) {
-    console.error(
-      `Failed to update user credits for user ${subscription.userId}:`,
-      error
-    );
-    throw error;
+      .where(eq(user.id, userRecord.id));
+
+    // Update local userRecord object
+    userRecord.stripeSubscriptionId = subscriptionId as string;
   }
 
-  // Add credits record for tracking
-  try {
-    const creditType = isFirstPayment
-      ? "initial_grant"
-      : isRenewal
-        ? "monthly_reset"
-        : "payment_grant";
-    const creditDescription = isFirstPayment
-      ? `Initial credits for ${subscription.plan} plan`
-      : isRenewal
-        ? `Monthly renewal credits for ${subscription.plan} plan`
-        : `Credits for ${subscription.plan} plan payment`;
+  // Get plan config for credits
+  const planConfig =
+    siteConfig.pricing[
+      userRecord.currentPlan as keyof typeof siteConfig.pricing
+    ];
+  const monthlyCreditsAmount = getPlanCredits(planConfig);
+
+  // Calculate next reset date using Stripe invoice period end
+  const nextResetDate = invoice.lines?.data?.[0]?.period?.end
+    ? new Date(invoice.lines.data[0].period.end * 1000)
+    : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+  // Extract subscription details from invoice
+  const invoiceLine = invoice.lines?.data?.[0];
+  const subscriptionAmount = invoice.amount_paid as number; // in cents
+  const subscriptionCurrency =
+    (invoice.currency as string)?.toUpperCase() || "USD";
+  const subscriptionInterval =
+    invoiceLine?.price?.recurring?.interval || "month";
+
+  console.log(`[DEBUG] Subscription details from invoice:`, {
+    subscriptionAmount,
+    subscriptionCurrency,
+    subscriptionInterval,
+    invoiceLines: invoice.lines?.data,
+    amountPaid: invoice.amount_paid,
+    currency: invoice.currency,
+  });
+
+  // Update user credits and subscription details
+  await db
+    .update(user)
+    .set({
+      monthlyCredits: monthlyCreditsAmount,
+      creditsResetDate: nextResetDate,
+      subscriptionAmount: subscriptionAmount,
+      subscriptionCurrency: subscriptionCurrency,
+      subscriptionInterval: subscriptionInterval,
+      updatedAt: new Date(),
+    })
+    .where(eq(user.id, userRecord.id));
+
+  // Add credits record for tracking (skip if subscription_create as it's already handled in checkout completion)
+  if (invoice.billing_reason !== "subscription_create") {
+    const creditType = "monthly_reset";
+    const creditDescription = `Monthly renewal credits for ${userRecord.currentPlan} plan`;
 
     await paymentService.addUserCredits(
-      subscription.userId,
+      userRecord.id,
       monthlyCreditsAmount,
       creditType,
-      subscription.id,
+      (subscriptionId || userRecord.stripeSubscriptionId) as string,
       creditDescription
     );
+
     console.log(
-      `Added ${monthlyCreditsAmount} credits to user ${subscription.userId} (${creditType})`
+      `Added monthly renewal credits for user ${userRecord.id}: ${monthlyCreditsAmount} credits`
     );
-  } catch (error) {
-    console.error(
-      `Failed to add credits to user ${subscription.userId}:`,
-      error
+  } else {
+    console.log(
+      `Skipping credit creation for subscription_create billing_reason (already handled in checkout completion)`
     );
   }
 
-  const successMessage = isFirstPayment
-    ? "First payment succeeded - Initial credits granted"
-    : isRenewal
-      ? "Monthly renewal succeeded - Credits reset completed"
-      : "Payment succeeded - Credits updated";
-
-  console.log(`${successMessage} for subscription ${subscription.id}`);
+  console.log(
+    `Payment succeeded for user ${userRecord.id} - ${userRecord.currentPlan} plan`
+  );
 }
 
 /**
@@ -527,41 +545,37 @@ async function handlePaymentFailed(invoice: Record<string, unknown>) {
   console.log("Processing failed payment:", invoice.id);
 
   const subscriptionId = invoice.subscription;
-
-  // Find subscription in our database
-  const [subscription] = await db
-    .select()
-    .from(subscriptions)
-    .where(eq(subscriptions.providerSubscriptionId, subscriptionId));
-
-  if (!subscription) {
-    console.warn(`Subscription not found for invoice: ${invoice.id}`);
+  if (!subscriptionId) {
     return;
   }
 
-  // Update subscription status to past_due
-  await db
-    .update(subscriptions)
-    .set({
-      status: "past_due",
-      updatedAt: new Date(),
-    })
-    .where(eq(subscriptions.id, subscription.id));
+  // Find user by Stripe subscription ID
+  const [userRecord] = await db
+    .select()
+    .from(user)
+    .where(eq(user.stripeSubscriptionId, subscriptionId as string));
 
-  // Update user plan to free if multiple failed payments
+  if (!userRecord) {
+    console.warn(`No user found for subscription: ${subscriptionId}`);
+    return;
+  }
+
+  // Downgrade user plan to free if multiple failed payments
   if (invoice.attempt_count >= 3) {
     await db
       .update(user)
       .set({
         currentPlan: "free",
         monthlyCredits: 0,
-        // Keep purchasedCredits unchanged
+        creditsResetDate: null,
+        stripeSubscriptionId: null,
+        cancelAtPeriodEnd: false,
         updatedAt: new Date(),
       })
-      .where(eq(user.id, subscription.userId));
+      .where(eq(user.id, userRecord.id));
 
     console.log(
-      `Downgraded user ${subscription.userId} to free plan due to failed payments`
+      `Downgraded user ${userRecord.id} to free plan due to failed payments`
     );
   }
 }
@@ -574,37 +588,93 @@ async function handleSubscriptionUpdated(
 ) {
   console.log("Processing subscription update:", subscription.id);
 
-  // Find subscription in our database
-  const [existingSubscription] = await db
+  // Find user by Stripe subscription ID
+  const [userRecord] = await db
     .select()
-    .from(subscriptions)
-    .where(eq(subscriptions.providerSubscriptionId, subscription.id));
+    .from(user)
+    .where(eq(user.stripeSubscriptionId, subscription.id as string));
 
-  if (!existingSubscription) {
-    console.warn(`Subscription not found: ${subscription.id}`);
+  if (!userRecord) {
+    console.warn(`No user found for subscription: ${subscription.id}`);
     return;
   }
 
-  // Update subscription in database
-  await db
-    .update(subscriptions)
-    .set({
-      status: subscription.status,
-      currentPeriodStart: subscription.items?.data?.[0]?.current_period_start
-        ? new Date(subscription.items.data[0].current_period_start * 1000)
-        : null,
-      currentPeriodEnd: subscription.items?.data?.[0]?.current_period_end
-        ? new Date(subscription.items.data[0].current_period_end * 1000)
-        : null,
-      cancelAtPeriodEnd: subscription.cancel_at_period_end,
-      canceledAt: subscription.canceled_at
-        ? new Date(subscription.canceled_at * 1000)
-        : null,
-      updatedAt: new Date(),
-    })
-    .where(eq(subscriptions.id, existingSubscription.id));
+  // Determine the new plan from Stripe subscription price
+  let updatedPlan = userRecord.currentPlan;
+  if (subscription.items?.data?.[0]?.price?.id) {
+    const priceId = subscription.items.data[0].price.id as string;
+    if (priceId === process.env.STRIPE_PRICE_STARTER_MONTHLY) {
+      updatedPlan = "starter";
+    } else if (priceId === process.env.STRIPE_PRICE_PRO_MONTHLY) {
+      updatedPlan = "pro";
+    }
+  }
 
-  console.log(`Updated subscription ${existingSubscription.id}`);
+  // Extract cancellation status from subscription
+  const cancelAtPeriodEnd = subscription.cancel_at_period_end || false;
+
+  // Update user plan if changed and subscription is active
+  if (
+    updatedPlan !== userRecord.currentPlan &&
+    subscription.status === "active"
+  ) {
+    const planConfig =
+      siteConfig.pricing[updatedPlan as keyof typeof siteConfig.pricing];
+    const monthlyCreditsAmount = getPlanCredits(planConfig);
+
+    // Calculate next reset date
+    const nextResetDate = subscription.items?.data?.[0]?.current_period_end
+      ? new Date(subscription.items.data[0].current_period_end * 1000)
+      : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+    // Extract subscription details
+    const subscriptionItem = subscription.items?.data?.[0];
+    const subscriptionAmount = subscriptionItem?.price?.unit_amount as number; // in cents
+    const subscriptionCurrency =
+      (subscriptionItem?.price?.currency as string)?.toUpperCase() || "USD";
+    const subscriptionInterval =
+      subscriptionItem?.price?.recurring?.interval || "month";
+
+    console.log(`[DEBUG] Subscription update details:`, {
+      subscriptionAmount,
+      subscriptionCurrency,
+      subscriptionInterval,
+      subscriptionItems: subscription.items?.data,
+      priceData: subscriptionItem?.price,
+      cancelAtPeriodEnd,
+    });
+
+    await db
+      .update(user)
+      .set({
+        currentPlan: updatedPlan,
+        monthlyCredits: monthlyCreditsAmount,
+        creditsResetDate: nextResetDate,
+        subscriptionAmount: subscriptionAmount,
+        subscriptionCurrency: subscriptionCurrency,
+        subscriptionInterval: subscriptionInterval,
+        cancelAtPeriodEnd: cancelAtPeriodEnd,
+        updatedAt: new Date(),
+      })
+      .where(eq(user.id, userRecord.id));
+
+    console.log(
+      `Updated user ${userRecord.id} plan from ${userRecord.currentPlan} to ${updatedPlan}`
+    );
+  } else {
+    // Even if plan didn't change, update cancellation status
+    await db
+      .update(user)
+      .set({
+        cancelAtPeriodEnd: cancelAtPeriodEnd,
+        updatedAt: new Date(),
+      })
+      .where(eq(user.id, userRecord.id));
+
+    console.log(
+      `Updated user ${userRecord.id} cancellation status: ${cancelAtPeriodEnd}`
+    );
+  }
 }
 
 /**
@@ -615,26 +685,16 @@ async function handleSubscriptionDeleted(
 ) {
   console.log("Processing subscription deletion:", subscription.id);
 
-  // Find subscription in our database
-  const [existingSubscription] = await db
+  // Find user by Stripe subscription ID
+  const [userRecord] = await db
     .select()
-    .from(subscriptions)
-    .where(eq(subscriptions.providerSubscriptionId, subscription.id));
+    .from(user)
+    .where(eq(user.stripeSubscriptionId, subscription.id as string));
 
-  if (!existingSubscription) {
-    console.warn(`Subscription not found: ${subscription.id}`);
+  if (!userRecord) {
+    console.warn(`No user found for subscription deletion: ${subscription.id}`);
     return;
   }
-
-  // Update subscription status to canceled
-  await db
-    .update(subscriptions)
-    .set({
-      status: "canceled",
-      canceledAt: new Date(),
-      updatedAt: new Date(),
-    })
-    .where(eq(subscriptions.id, existingSubscription.id));
 
   // Downgrade user to free plan
   await db
@@ -642,26 +702,14 @@ async function handleSubscriptionDeleted(
     .set({
       currentPlan: "free",
       monthlyCredits: 0,
-      // Keep purchasedCredits unchanged
+      creditsResetDate: null,
+      stripeSubscriptionId: null,
+      cancelAtPeriodEnd: false,
       updatedAt: new Date(),
     })
-    .where(eq(user.id, existingSubscription.userId));
+    .where(eq(user.id, userRecord.id));
 
   console.log(
-    `Canceled subscription and downgraded user ${existingSubscription.userId} to free plan`
+    `Canceled subscription and downgraded user ${userRecord.id} to free plan`
   );
-}
-
-/**
- * Get plan credits allocation
- */
-function getPlanCredits(plan: string): number {
-  const credits = {
-    free: 0,
-    starter: 100,
-    pro: 500,
-    credits_pack: 1000, // Large number for "unlimited"
-  };
-
-  return credits[plan as keyof typeof credits] || 0;
 }

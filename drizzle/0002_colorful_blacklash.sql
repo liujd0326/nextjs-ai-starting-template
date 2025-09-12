@@ -1,0 +1,1 @@
+ALTER TABLE "subscriptions" ALTER COLUMN "is_active" SET DEFAULT false;

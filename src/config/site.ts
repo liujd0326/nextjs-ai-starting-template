@@ -10,6 +10,7 @@ export interface PricingPlan {
   paymentMethods: string[];
   buttonText: string;
   note: string;
+  credits?: number;
   stripePriceIds?: {
     monthly?: string;
     oneTime?: string;
@@ -58,8 +59,9 @@ export const siteConfig: SiteConfig = {
       description: "Perfect for trying out our AI tools",
       free: true,
       isSubscription: false,
+      credits: 30,
       features: [
-        "10 AI generations per month",
+        "30 AI generations per month",
         "Basic image generation",
         "Standard quality output",
         "Community support",
@@ -71,12 +73,13 @@ export const siteConfig: SiteConfig = {
 
     starter: {
       name: "Starter",
-      price: 19.99,
+      price: 29.99,
       currency: "USD",
       description: "Great for individuals and small projects",
       isSubscription: true,
+      credits: 200,
       features: [
-        "100 AI generations per month",
+        "200 AI generations per month",
         "High-quality image generation",
         "Multiple AI models",
         "Priority support",
@@ -92,13 +95,14 @@ export const siteConfig: SiteConfig = {
 
     pro: {
       name: "Pro",
-      price: 29.99,
+      price: 39.99,
       currency: "USD",
       description: "Perfect for professionals and teams",
       popular: true,
       isSubscription: true,
+      credits: 700,
       features: [
-        "500 AI generations per month",
+        "700 AI generations per month",
         "Premium AI models access",
         "Advanced customization",
         "Priority processing",
@@ -114,12 +118,13 @@ export const siteConfig: SiteConfig = {
 
     credits_pack: {
       name: "Credits Pack",
-      price: 34.99,
+      price: 99.99,
       currency: "USD",
       description: "1000 credits for your AI creations",
       isSubscription: false,
+      credits: 8888,
       features: [
-        "1000 AI generations",
+        "8888 AI generations",
         "All premium models access",
         "Priority processing",
         "Commercial usage rights",
@@ -177,6 +182,11 @@ export const getSubscriptionPlans = () => {
 
 export const getPopularPlan = () => {
   return Object.values(siteConfig.pricing).find((plan) => plan.popular);
+};
+
+// 辅助函数：获取套餐积分
+export const getPlanCredits = (plan: PricingPlan): number => {
+  return plan.credits || 0;
 };
 
 export const getStripePriceId = (plan: PricingPlan): string | undefined => {
