@@ -33,19 +33,27 @@
 - **Motion** (Framer Motion v12) - 动画库，用于页面转场和交互动画
 - **next-themes** - 深色/浅色主题切换支持
 - **Sonner** - Toast 通知组件
+- **React Icons** - 图标库
 - 响应式设计，移动端优先
+
+### AI 集成
+
+- **Replicate** - AI 图像生成平台
+- 支持文生图和图生图功能
+- face-to-many 风格转换模型
+- 实时状态追踪和结果存储
 
 ### 支付系统
 
-- **Stripe** - 主要支付提供商，支持订阅和一次性支付
-- **Creem & PayPal** - 备用支付提供商（配置中）
-- 多支付提供商架构，易于扩展
-- Webhook 处理，自动同步支付状态
-- 积分系统，支持订阅积分和一次性购买积分
+- **Stripe** - 主要支付提供商，支持月付订阅和一次性积分购买
+- 简化架构，用户订阅信息直接存储在 user 表
+- Stripe Webhook 处理，自动同步支付状态
+- 积分系统，支持月度积分重置和永久积分
 
 ### 存储与部署
 
-- **Cloudflare R2** - 静态资源存储（图片、生成内容）
+- **Cloudflare R2** - 静态资源存储（AI 生成图片、用户上传文件）
+- **AWS SDK S3 Client** - 与 R2 交互的 S3 兼容客户端
 - **Cloudflare Workers** - 边缘计算部署
 - **OpenNext.js** - Cloudflare 部署适配器
 - CDN 加速和全球分发
@@ -128,12 +136,13 @@ pnpm db:studio    # 打开数据库管理界面
 
 ## 业务逻辑
 
-### AI 功能
+### AI 功能（Replicate 集成）
 
-- **文生图**: 文本到图像生成
-- **图生图**: 图像到图像转换
-- 支持多种 AI 模型和参数配置
-- 实现队列机制处理长时间任务
+- **文生图**: 使用 Replicate API 进行文本到图像生成
+- **图生图**: 支持 face-to-many 风格转换，将输入人像转换为多种风格
+- **生成历史**: 完整的生成记录和状态管理
+- **积分消耗**: 每次生成消耗 1 积分，实时追踪余额
+- **多模型支持**: 支持配置不同的 AI 模型和参数
 
 ### 用户系统
 
@@ -287,19 +296,17 @@ import { MotionDiv, MotionSection, MotionH1 } from '@/components/motion-wrapper'
 
 ### 核心表结构
 
-- **user** - 用户信息，包含计划、积分和重置日期
-- **subscriptions** - 订阅记录，支持多支付提供商
-- **payments** - 支付记录，追踪所有交易
-- **userCredits** - 用户积分详情，支持不同类型和到期管理
+- **user** - 用户信息，包含计划、积分和订阅信息
+- **userCredits** - 用户积分明细记录，支持不同类型和到期管理
+- **aiGenerations** - AI 生成历史记录，包含文生图和图生图
 - **webhookEvents** - Webhook 事件记录，防重复处理
 - **session/account/verification** - Better Auth 认证相关表
 
 ### 枚举定义
 
-- **subscriptionStatusEnum**: active, canceled, past_due, unpaid, trialing, paused
-- **paymentProviderEnum**: stripe, creem, paypal
-- **paymentStatusEnum**: pending, succeeded, failed, canceled, refunded
 - **subscriptionPlanEnum**: free, starter, pro, credits_pack
+- **generationStatusEnum**: pending, processing, completed, failed
+- **generationTypeEnum**: text_to_image, image_to_image
 
 ## 环境变量配置
 
@@ -318,54 +325,49 @@ GOOGLE_CLIENT_SECRET="your-google-client-secret"
 
 # 支付配置
 DEFAULT_PAYMENT_PROVIDER="stripe"
-NEXT_PUBLIC_ENABLE_YEARLY_PRICING="true"
 ```
 
 ### Stripe 配置
 
 ```bash
-# 测试环境
-STRIPE_SECRET_KEY_TEST="sk_test_..."
-STRIPE_WEBHOOK_SECRET_TEST="whsec_..."
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_TEST="pk_test_..."
-
-# 生产环境
-STRIPE_SECRET_KEY="sk_live_..."
+# Stripe 密钥（测试或生产环境）
+STRIPE_SECRET_KEY="sk_test_..." # 或 sk_live_... 用于生产环境
 STRIPE_WEBHOOK_SECRET="whsec_..."
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_live_..."
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_..." # 或 pk_live_... 用于生产环境
 
-# 价格 ID 配置
-STRIPE_PRICE_STARTER_MONTHLY_TEST="price_test_starter_monthly"
-STRIPE_PRICE_STARTER_YEARLY_TEST="price_test_starter_yearly"
-STRIPE_PRICE_PRO_MONTHLY_TEST="price_test_pro_monthly"
-STRIPE_PRICE_PRO_YEARLY_TEST="price_test_pro_yearly"
-STRIPE_PRICE_CREDITS_PACK_TEST="price_test_credits_pack"
+# Stripe 价格 ID 配置
+STRIPE_PRICE_STARTER_MONTHLY="price_test_starter_monthly" # 或 price_live_starter_monthly 用于生产环境
+STRIPE_PRICE_PRO_MONTHLY="price_test_pro_monthly" # 或 price_live_pro_monthly 用于生产环境
+STRIPE_PRICE_CREDITS_PACK="price_test_credits_pack" # 或 price_live_credits_pack 用于生产环境
+
+# Replicate AI
+REPLICATE_API_TOKEN="r8_..."
 ```
 
-## 支付系统架构
+## 支付系统架构（简化版）
 
-### 多支付提供商设计
+### 系统设计
 
-- **BasePaymentProvider** - 抽象基类定义通用接口
-- **StripeProvider** - Stripe 实现
-- **PaymentProviderFactory** - 工厂模式创建提供商实例
-- **PaymentService** - 统一业务逻辑层
+- **Stripe 为主**: 主要使用 Stripe 作为支付提供商
+- **简化架构**: 用户订阅信息直接存储在 user 表中
+- **userCredits 表**: 用于详细的积分记录和历史追踪
+- **webhookEvents 表**: 防止 Webhook 事件重复处理
 
 ### 主要功能
 
-1. **订阅管理** - 创建、更新、取消订阅
-2. **一次性支付** - 积分包购买
-3. **Webhook 处理** - 自动同步支付状态
-4. **积分系统** - 月度重置和永久积分
-5. **客户管理** - 跨平台客户信息同步
+1. **订阅管理** - 创建、取消月付订阅（不支持年付）
+2. **一次性支付** - 积分包购买，积分永不过期
+3. **Webhook 处理** - Stripe Webhook 自动同步支付状态
+4. **积分系统** - 月度积分重置 + 购买积分管理
+5. **订阅管理** - 直接在 user 表中管理订阅状态
 
 ### 支付流程
 
-1. 用户选择套餐或积分包
-2. Server Action 创建支付会话
-3. 重定向到支付提供商页面
-4. 支付完成后 Webhook 通知
-5. 系统自动更新用户状态和积分
+1. 用户选择 Starter/Pro 月付订阅或积分包
+2. Server Action 创建 Stripe Checkout Session
+3. 重定向到 Stripe 支付页面
+4. 支付完成后 Stripe Webhook 通知
+5. 系统更新 user 表和创建 userCredits 记录
 
 ## 项目结构详解
 
@@ -379,10 +381,12 @@ STRIPE_PRICE_CREDITS_PACK_TEST="price_test_credits_pack"
 ### 模块化架构 (`src/modules`)
 
 - `auth/` - 认证模块
+- `contact/` - 联系我们模块
 - `dashboard/` - 仪表板模块
-- `legal/` - 法律条款模块
+- `legal/` - 法律条款模块（包含 DMCA 政策）
 - `payment/` - 支付系统模块（完整实现）
 - `pricing/` - 定价展示模块
+- `replicate/` - AI 图像生成模块（文生图、图生图）
 
 ### 支付模块结构
 
@@ -490,8 +494,8 @@ interface UploadResult {
 
 ### 技术特性
 
-- **S3 兼容**: 使用 AWS SDK 的 S3 客户端与 R2 交互
-- **唯一文件名**: 自动使用 UUID 生成唯一文件名避免冲突
+- **S3 兼容**: 使用 @aws-sdk/client-s3 的 S3Client 与 R2 交互
+- **唯一文件名**: 使用 uuid v4 生成唯一文件名避免冲突
 - **内容类型检测**: 自动检测和设置正确的 MIME 类型
 - **错误处理**: 完整的错误处理和环境变量验证
 - **延迟初始化**: 客户端在需要时创建，避免连接复用问题
@@ -510,15 +514,41 @@ interface UploadResult {
 - 定期清理不再使用的文件
 - 考虑实现文件访问权限控制
 
+## Replicate AI 集成详情
+
+### 配置要求
+
+```bash
+# Replicate API Token
+REPLICATE_API_TOKEN="r8_..."
+```
+
+### 主要功能
+
+- **图生图模型**: `flux-kontext-apps/face-to-many-kontext`
+- **状态管理**: pending → processing → completed/failed
+- **结果存储**: 生成的图片保存到 Cloudflare R2
+- **积分系统**: 每次生成消耗用户积分
+
+### 数据流程
+
+1. 用户上传图片和设置参数
+2. 系统检查用户积分余额
+3. 创建 aiGenerations 记录
+4. 调用 Replicate API 启动生成
+5. 定期轮询生成状态
+6. 生成完成后下载并上传到 R2
+7. 更新生成记录和用户积分
+
 ## 注意事项
 
 - 所有用户输入都需要验证和清理
-- 图片处理需要考虑文件大小和格式
-- AI API 调用需要实现重试机制和错误处理
-- 定期清理临时文件和过期数据
+- AI 生成需要实现异步处理和状态追踪
+- 图片处理需要考虑文件大小限制（10MB）
+- 定期清理失败的生成记录和临时文件
 - 遵循 Cloudflare Workers 的资源限制
 - 支付相关操作务必确保数据一致性和安全性
-- R2 上传的文件会自动生成唯一文件名，避免命名冲突
+- R2 上传的文件使用 UUID 生成唯一文件名
 
 [# AI 编程核心准则 v3.0]
 
